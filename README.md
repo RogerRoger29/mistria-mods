@@ -17,6 +17,10 @@
 </p>
 
 <p align="center">
+  Also on <a href="https://www.nexusmods.com/fieldsofmistria/mods/1450">Nexus Mods</a>.
+</p>
+
+<p align="center">
   <img src="assets/screenshot.png" width="720" alt="The Mistria Mods app">
 </p>
 
