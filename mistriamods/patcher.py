@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import sys
+import tomllib
 import zipfile
 
 
@@ -133,7 +134,7 @@ def check_mod(archive, mod, opt=None):
     """
     opt = mod.defaults() if opt is None else opt
     report = []
-    for name, edits in mod.patches(mod.markers, opt).items():
+    for name, edits in mod_edits(mod, opt).items():
         if name not in archive.files:
             report.append((name, False, "not in assets.zip"))
             continue
@@ -196,14 +197,21 @@ class Archive(object):
             os.replace(tmp, self.path)
         except PermissionError:
             _unlink(tmp)
-            sys.exit(
-                "could not replace assets.zip - it is in use.\n"
-                "Close Fields of Mistria and run this again."
-            )
+            sys.exit(NOT_WRITABLE % "assets.zip")
         except BaseException:
             # Never leave a ~600 MB orphan behind on disk-full, Ctrl-C, etc.
             _unlink(tmp)
             raise
+
+
+# Windows reports both "the game has it open" and "you may not write here"
+# as PermissionError, so the message covers both.
+NOT_WRITABLE = (
+    "could not write %s.\n"
+    "Either the game is running - close Fields of Mistria and try again - or "
+    "this folder is not writable: run the installer as administrator, or move "
+    "the game out of Program Files."
+)
 
 
 def _unlink(path):
@@ -247,6 +255,9 @@ def ensure_backup(archive, backup_path, mods):
             out.fp.flush()
             os.fsync(out.fp.fileno())
         os.replace(tmp, backup_path)
+    except PermissionError:
+        _unlink(tmp)
+        sys.exit(NOT_WRITABLE % os.path.basename(backup_path))
     except BaseException:
         _unlink(tmp)
         raise
@@ -254,9 +265,87 @@ def ensure_backup(archive, backup_path, mods):
     print("saved a clean backup -> " + os.path.basename(backup_path))
 
 
+# --- localization fallbacks --------------------------------------------------
+#
+# The game's translations are keyed by path ("misc_local/skills",
+# "perks/pathfinder/name", "letters/<id>/local") in one table per language,
+# with a matching source cache holding the English each translation was made
+# from. A key with no entry in the active language's table renders as the
+# literal word "MISSING" - so every label, perk and letter a mod adds must
+# also be appended, in English, to all seven non-English tables. A mod
+# declares what it added with
+#
+#     TRANSLATE = {"misc_local": LABELS, "perks": PERK_DEFS, "letters": ...}
+#
+# mapping a key prefix to the very TOML text the mod appends, and the entries
+# are derived from that text, so they can never drift from it.
+
+LANGUAGES = ("fra", "jpn", "kor", "rus", "spa", "zh-Hans", "zh-Hant")
+
+TRANSLATION_FILES = (
+    ["assets/localization/translations/%s.meta.toml" % l for l in LANGUAGES]
+    + ["assets/localization/source_caches/%s.meta.toml" % l for l in LANGUAGES]
+)
+
+# The fields of a table (a perk, a letter) that carry player-visible text.
+LOCALIZED_FIELDS = ("name", "description", "subject_line", "local")
+
+
+def toml_string(value):
+    """A TOML string spelled exactly as the game's own tables spell it.
+
+    The engine's parser is only ever exercised by what ships: basic strings
+    with no escape sequences, literal strings when the text holds a double
+    quote, and triple-quoted strings (opening delimiter on its own line) when
+    it spans lines. So this writes those three forms and nothing else, and
+    refuses text that would need an escape rather than guess at support.
+    """
+    if "\\" in value or '"""' in value:
+        raise ValueError("cannot spell %r without a TOML escape" % value)
+    if any(ord(c) < 32 and c not in "\n\t" for c in value):
+        raise ValueError("control character in %r" % value)
+    if "\n" not in value:
+        if '"' not in value:
+            return '"' + value + '"'
+        if "'" not in value:
+            return "'" + value + "'"
+    if value.endswith('"'):
+        raise ValueError("cannot spell %r without a TOML escape" % value)
+    if "\n" in value:
+        return '"""\n' + value + '"""'
+    return '"""' + value + '"""'
+
+
+def translation_entries(sections):
+    """'"prefix/key" = "English"' lines for every string in the sections."""
+    lines = []
+    for prefix, toml_text in sections.items():
+        for key, value in tomllib.loads(toml_text).items():
+            if isinstance(value, str):
+                lines.append('"%s/%s" = %s' % (prefix, key, toml_string(value)))
+            elif isinstance(value, dict):
+                for field in LOCALIZED_FIELDS:
+                    if isinstance(value.get(field), str):
+                        lines.append('"%s/%s/%s" = %s'
+                                     % (prefix, key, field, toml_string(value[field])))
+    return "\n".join(lines)
+
+
+def mod_edits(mod, opt):
+    """A mod's patches plus the localization fallbacks its TRANSLATE implies."""
+    edits = dict(mod.patches(mod.markers, opt))
+    sections = getattr(mod, "TRANSLATE", None)
+    if sections:
+        text = translation_entries(sections)
+        if text:
+            for path in TRANSLATION_FILES:
+                edits[path] = [(Markers.APPEND, mod.markers.block(text, toml=True))]
+    return edits
+
+
 def mod_files(mod):
     """Every archive path a mod touches."""
-    return list(mod.patches(mod.markers, mod.defaults()).keys())
+    return list(mod_edits(mod, mod.defaults()).keys())
 
 
 def strip_mod(archive, mod):
@@ -274,7 +363,7 @@ def strip_mod(archive, mod):
 
 def apply_mod(archive, mod, opt):
     """Insert a mod's blocks. Assumes strip_mod ran first."""
-    for name, edits in mod.patches(mod.markers, opt).items():
+    for name, edits in mod_edits(mod, opt).items():
         toml = name.endswith(".toml")
         text = archive.read(name)
 

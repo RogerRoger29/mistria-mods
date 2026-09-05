@@ -41,14 +41,23 @@ def momi_manifest():
             for m in data.get("mods", [])]
 
 
+def short(name):
+    """A file name that stays unambiguous: the fourteen localization tables
+    share their basenames across translations/ and source_caches/."""
+    parts = name.split("/")
+    if "localization" in parts:
+        return "/".join(parts[-2:])
+    return parts[-1]
+
+
 def verify_mod(archive, mod):
     """(ok, [details]) for one mod: the right number of marker blocks in every
     patched file, every block balanced on braces and parentheses."""
     tag = mod.SLUG.upper()
     details = []
-    for name, edits in mod.patches(mod.markers, mod.defaults()).items():
+    for name, edits in patcher.mod_edits(mod, mod.defaults()).items():
         if name not in archive.files:
-            details.append("%s: missing from archive" % os.path.basename(name))
+            details.append("%s: missing from archive" % short(name))
             continue
         text = archive.read(name)
         toml = name.endswith(".toml")
@@ -64,13 +73,13 @@ def verify_mod(archive, mod):
             chosen = patcher.resolve_edit(stripped, edit)
             if chosen is None:
                 details.append("%s: no anchor alternative matches"
-                               % os.path.basename(name))
+                               % short(name))
                 continue
             _, replacement, expected = chosen
             want += replacement.count(">>> %s_BEGIN" % tag) * expected
         if not (begin == end == want):
             details.append("%s: blocks %d/%d, expected %d"
-                           % (os.path.basename(name), begin, end, want))
+                           % (short(name), begin, end, want))
         if not toml:
             pat = re.compile(re.escape(lead + ">>> %s_BEGIN" % tag)
                              + r"(.*?)" + re.escape(lead + "<<< %s_END" % tag),
@@ -78,7 +87,14 @@ def verify_mod(archive, mod):
             for m in pat.finditer(text):
                 blk = m.group(1)
                 if blk.count("{") != blk.count("}") or blk.count("(") != blk.count(")"):
-                    details.append("%s: unbalanced block" % os.path.basename(name))
+                    details.append("%s: unbalanced block" % short(name))
+    # Fourteen tables missing the same block is one problem, not fourteen.
+    tables = [d for d in details if d.startswith(("translations/", "source_caches/"))]
+    if len(tables) > 1:
+        rest = [d for d in details if d not in tables]
+        problems = sorted({d.split(": ", 1)[1] for d in tables})
+        details = rest + ["%d localization tables: %s"
+                          % (len(tables), "; ".join(problems))]
     return (not details, details)
 
 

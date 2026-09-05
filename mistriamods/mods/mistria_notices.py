@@ -113,6 +113,9 @@ Come up to the Manor House when you have a moment. There is work worth discussin
 '''
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"letters": LETTERS_TOML}
 
 
 def patches(mk, opt):

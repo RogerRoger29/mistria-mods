@@ -19,6 +19,14 @@ Festival: Flower Festival, 21
 The key is a **real, rebindable control** — it appears in Settings → Controls
 next to everything else, so `V` is only the starting point.
 
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `--checklist-key` | `V` | The **default** binding only. Rebind in game afterwards. |
+
+```bash
+python mistria-mods/install.py apply daily-checklist --checklist-key H
+```
+
 ## Why it's worth having
 
 The game tracks every one of these and never puts them in one place. Working out

@@ -19,8 +19,11 @@ the plan; see the tier tables and Build notes.
 - The shrine's category screen reads rows from `ui/misc.toml`
   `[shrine_categories]`; the journal reads `player_menu_skill_category_order`.
   Both auto-center any count. Magic joins Seridia's row: mining, combat, magic.
-- The tree is one file, `ui/skill_menu/magic.toml`, mount-tree format.
-  Perks mint from `perks.toml` (extra-perks proved the pattern).
+- The tree is a prototype in the same shape as the nine `ui/skill_menu/*.toml`
+  files, injected into the shrine loader's data right after it reads that
+  directory — the archive writer cannot add files, so it is not a tenth file
+  (see Build notes). Perks mint from `perks.toml` (extra-perks proved the
+  pattern).
 - Hand-written code needed: the XP hook in `cast_spell()`, one journal-popup
   ORDER/color patch, and one effect hook per perk below.
 
@@ -112,13 +115,14 @@ mana orbs) pace the tree.
 
 ## Art (reuse only — atlases are prebuilt)
 
-- `skills.toml` sprite: `spr_ui_hud_health_mana_bar_icon` (candidate).
-- Shrine domain tile: reuse `spr_ui_skills_domain_icon_crafting` or
-  `_livestock` (both unused by any tree) with an unclaimed LUT row for a
-  distinct hue; verify against `spr_ui_skills_lut` at build.
-- Perk entry icons: the five `spr_ui_journal_magic_*_spell_icon` sprites,
-  `spr_ui_hud_health_mana_ball_on`, `spr_item_mana_small/medium/big`,
-  `spr_ui_item_mana_potion` — assigned per perk at build.
+- `skills.toml` sprite: `spr_ui_hud_health_mana_bar_icon`.
+- Shrine domain tile: the unused `spr_ui_skills_domain_icon_crafting` with two
+  overlays that turn it into a magic tile — the composite is described under
+  Build notes.
+- Perk entry icons: the `_main` variants of the five
+  `spr_ui_journal_magic_*_spell_icon` families, plus the mana-orb, mana-item
+  and mana-potion sprites — the exact assignments are the tier entries in
+  `magic_skill.py`.
 
 ## Build notes
 
@@ -176,6 +180,12 @@ mana orbs) pace the tree.
   "Magic"` appended to misc_local.toml (the shared label file crop-labels,
   daily-checklist and storage-anywhere already append to) and the prototype's
   `name` set to `"misc_local/magic_skill_category"`.
+- **The same is true in every other language, one level up.** misc_local.toml
+  and perks.toml are only the English source; a French or Japanese game
+  looks each key up in its own translation table and shows MISSING for the
+  category name and all 38 perk strings. The mod declares its text in
+  `TRANSLATE` and the framework appends it, in English, to all seven
+  translation tables — the general fix every text-adding mod uses.
 - **The shrine tile is a three-layer composite**: the unused crafting domain
   tile underneath (keeps the frame, hover-variant swap and pilot wiring), the
   shrine's own blank `spr_ui_skills_skill_slot_white` centered over it to

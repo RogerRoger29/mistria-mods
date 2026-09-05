@@ -135,6 +135,11 @@ MENU_ANCHOR = ('        self.checkbox("screenshake");\n'
 LABELS = 'uncaught_sparkles = "Uncaught Insect Sparkles"'
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
+
+
 def patches(mk, opt):
     return {
         OBJ_BUG: [

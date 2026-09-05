@@ -48,6 +48,7 @@ FSM = "assets/gml/scripts/Player/AriFsm.gml"
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 MENU = "assets/gml/scripts/UI/Anchor/Menus/SettingsMenu.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+LABELS = 'instant_tools = "Instant Tools"'
 
 
 
@@ -137,10 +138,13 @@ def _patches():
                     SETTINGS_ANCHOR + block("instant_tools: true,", " " * 8), 1)],
         MENU: [(MENU_ANCHOR,
                 block('self.checkbox("instant_tools");', " " * 8) + MENU_ANCHOR, 1)],
-        LOCAL: [(APPEND, block('instant_tools = "Instant Tools"', toml=True), 1)],
+        LOCAL: [(APPEND, block(LABELS, toml=True), 1)],
     }
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
 
 
 def patches(mk, opt):

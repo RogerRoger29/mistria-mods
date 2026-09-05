@@ -36,6 +36,7 @@ GRIDUTILS = "assets/gml/scripts/GameplaySystems/Data/Grid/__GridGeneral/GridUtil
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 MENU = "assets/gml/scripts/UI/Anchor/Menus/SettingsMenu.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+LABELS = 'big_rock_credit = "Big Rock Credit"'
 
 SETTINGS_ANCHOR = "        can_burn_fruit_trees: true,\n"
 MENU_ANCHOR = ('        self.checkbox("screenshake");\n'
@@ -86,6 +87,11 @@ if SETTINGS.get("big_rock_credit")
 """
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
+
+
 def patches(mk, opt):
     return {
         ROCKS: [(ROCKS_ANCHOR, ROCKS_ANCHOR + mk.block(ROCKS_EFFECT, " " * 4))],
@@ -94,6 +100,5 @@ def patches(mk, opt):
                     SETTINGS_ANCHOR + mk.block("big_rock_credit: true,", " " * 8))],
         MENU: [(MENU_ANCHOR,
                 mk.block('self.checkbox("big_rock_credit");', " " * 8) + MENU_ANCHOR)],
-        LOCAL: [(mk.APPEND,
-                 mk.block('big_rock_credit = "Big Rock Credit"', toml=True))],
+        LOCAL: [(mk.APPEND, mk.block(LABELS, toml=True))],
     }

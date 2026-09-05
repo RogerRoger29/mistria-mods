@@ -124,6 +124,14 @@ with every known mod stripped out, so it is genuinely clean even if mods were
 already installed. Restoring it over `assets.zip` puts you back to where you
 started. (If you use MOMI, its own `assets.bak.zip` is the true untouched game.)
 
+**Other languages.** Everything the mods add — labels, perk names and
+descriptions, the letters — is written in English. The game looks each string
+up in the active language's table and shows the word MISSING for anything it
+can't find, so the installer also appends the English text to all seven
+translation tables. Playing in French, Spanish, Russian, Japanese, Korean or
+Chinese, you see English for the mods' text and your own language for
+everything else.
+
 ## Known limitations
 
 - **Close the game first.** Windows will not let the archive be replaced while

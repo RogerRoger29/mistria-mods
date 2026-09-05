@@ -237,6 +237,11 @@ checklist_festival = "Festival:"
 input_show_checklist = "Show Checklist"'''
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
+
+
 def patches(mk, opt):
     key = opt["checklist_key"].lower()
     default = '["%s", undefined, undefined, undefined]' % key

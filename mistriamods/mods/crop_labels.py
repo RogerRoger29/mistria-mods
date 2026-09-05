@@ -48,6 +48,9 @@ ARI = "assets/gml/objects/characters/obj_ari.gml"
 INPUTUTILS = "assets/gml/scripts/GameplaySystems/Input/InputUtils.gml"
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+# Label shown in Settings > Controls; the menu looks up
+# misc_local/input_{snake_case_of_enum}.
+LABELS = 'input_show_crop_labels = "Show Crop Labels"'
 
 # misc_local.toml is TOML, so it needs hash comments.
 # Leading \n? because misc_local.toml has no trailing newline of its own: the
@@ -239,9 +242,7 @@ def _patches(key):
             ),
         ],
         LOCAL: [
-            # Label shown in Settings > Controls; the menu looks up
-            # misc_local/input_{snake_case_of_enum}.
-            (APPEND, block('input_show_crop_labels = "Show Crop Labels"', toml=True)),
+            (APPEND, block(LABELS, toml=True)),
         ],
         CROPS: [(APPEND, block(HELPER))],
         ARI: [
@@ -252,6 +253,9 @@ def _patches(key):
     }
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
 
 
 def patches(mk, opt):

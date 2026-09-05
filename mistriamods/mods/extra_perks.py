@@ -125,6 +125,11 @@ if ARI.perk_active(Perk.WellSpring) {
 """
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"perks": PERK_DEFS}
+
+
 def patches(mk, opt):
     return {
         # Declaring the perk is what creates the Perk.X constant.

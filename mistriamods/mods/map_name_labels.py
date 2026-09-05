@@ -46,6 +46,7 @@ MAPMENU = "assets/gml/scripts/UI/Anchor/Menus/MapMenu.gml"
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 MENU = "assets/gml/scripts/UI/Anchor/Menus/SettingsMenu.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+LABELS = 'map_name_labels = "Map Name Labels"'
 
 
 
@@ -184,10 +185,13 @@ def _patches(card):
                     SETTINGS_ANCHOR + block("map_name_labels: true,", " " * 8))],
         MENU: [(MENU_ANCHOR,
                 block('self.checkbox("map_name_labels");', " " * 8) + MENU_ANCHOR)],
-        LOCAL: [(APPEND, block('map_name_labels = "Map Name Labels"', toml=True))],
+        LOCAL: [(APPEND, block(LABELS, toml=True))],
     }
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
 
 
 def patches(mk, opt):

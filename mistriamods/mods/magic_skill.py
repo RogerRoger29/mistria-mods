@@ -769,6 +769,11 @@ COLOR_EFFECT = '''case Skill.Magic:
 '''
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS, "perks": PERK_DEFS}
+
+
 def patches(mk, opt):
     return {
         # Appended at the end: existing Skill indices stay stable, and the

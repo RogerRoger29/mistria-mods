@@ -51,6 +51,7 @@ ARI = "assets/gml/objects/characters/obj_ari.gml"
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 MENU = "assets/gml/scripts/UI/Anchor/Menus/SettingsMenu.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+LABELS = 'ladder_progress = "Ladder Progress"'
 
 # Leading \n? because misc_local.toml has no trailing newline of its own.
 
@@ -190,10 +191,13 @@ def _patches(x, y):
                     SETTINGS_ANCHOR + block("ladder_progress: true,", " " * 8))],
         MENU: [(MENU_ANCHOR,
                 block('self.checkbox("ladder_progress");', " " * 8) + MENU_ANCHOR)],
-        LOCAL: [(APPEND, block('ladder_progress = "Ladder Progress"', toml=True))],
+        LOCAL: [(APPEND, block(LABELS, toml=True))],
     }
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
 
 
 def patches(mk, opt):

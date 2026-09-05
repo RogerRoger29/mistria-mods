@@ -57,6 +57,10 @@ FSM = "assets/gml/scripts/Player/AriFsm.gml"
 SETTINGS = "assets/gml/scripts/Serialization/Settings.gml"
 MENU = "assets/gml/scripts/UI/Anchor/Menus/SettingsMenu.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
+LABELS = '''vein_watering = "Vein Watering"
+vein_water_any_crop = "Vein Watering: Any Crop"
+vein_mining = "Vein Mining"
+vein_mine_any_rock = "Vein Mining: Any Rock"'''
 
 # Leading \n? because misc_local.toml has no trailing newline of its own.
 # The first release shipped under a different marker name; strip those too so an
@@ -423,15 +427,14 @@ def _patches(max_tiles):
              + MENU_ANCHOR),
         ],
         LOCAL: [
-            (APPEND, block('vein_watering = "Vein Watering"\n'
-                           'vein_water_any_crop = "Vein Watering: Any Crop"\n'
-                           'vein_mining = "Vein Mining"\n'
-                           'vein_mine_any_rock = "Vein Mining: Any Rock"',
-                           toml=True)),
+            (APPEND, block(LABELS, toml=True)),
         ],
     }
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
 
 
 def patches(mk, opt):

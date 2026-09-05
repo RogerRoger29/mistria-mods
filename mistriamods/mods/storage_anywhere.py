@@ -965,6 +965,11 @@ input_open_chest_picker = "Open Chest Picker"
 input_pin_chest = "Pin Chest"'''
 
 
+# The player-visible text this mod adds; the framework mirrors it into every
+# language's table so it never renders as MISSING.
+TRANSLATE = {"misc_local": LABELS}
+
+
 def patches(mk, opt):
     key = opt["chest_key"].lower()
     pin = opt["pin_key"].lower()
