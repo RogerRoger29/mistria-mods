@@ -7,15 +7,11 @@ does, with a checklist and a log. Built into a single MistriaMods.exe with
 PyInstaller; runs from source too.
 """
 
-import hashlib
-import json
 import os
 import queue
-import subprocess
 import sys
 import threading
 import traceback
-import urllib.request
 import webbrowser
 
 import tkinter as tk
@@ -30,110 +26,8 @@ from mistriamods.registry import MODS  # noqa: E402
 
 APP = "Mistria Mods"
 HOMEPAGE = "https://github.com/RogerRoger29/mistria-mods"
-RELEASES_API = "https://api.github.com/repos/RogerRoger29/mistria-mods/releases/latest"
-EXE_ASSET = "MistriaMods.exe"
-FROZEN = bool(getattr(sys, "frozen", False))
+RELEASES = HOMEPAGE + "/releases/latest"
 
-
-# --- updates ---------------------------------------------------------------
-#
-# Every new mod ships as a GitHub release, so "update the app" and "get the
-# new mods" are the same action. The check is one unauthenticated call to the
-# releases API; the update downloads the release's exe beside this one and
-# swaps them - a running exe cannot be overwritten on Windows, but it can be
-# renamed, so the old one becomes MistriaMods.exe.old and is cleaned up on the
-# next start. From source there is nothing to swap, so the release page opens.
-
-def version_tuple(text):
-    parts = []
-    for piece in text.strip().lstrip("vV").split("."):
-        digits = "".join(ch for ch in piece if ch.isdigit())
-        parts.append(int(digits) if digits else 0)
-    return tuple(parts)
-
-
-def _request(url):
-    return urllib.request.Request(url, headers={
-        "User-Agent": "MistriaMods/" + VERSION,
-        "Accept": "application/vnd.github+json",
-    })
-
-
-def latest_release(timeout=8):
-    """The newest release: tag, notes, page, and the exe asset's url and size."""
-    with urllib.request.urlopen(_request(RELEASES_API), timeout=timeout) as r:
-        data = json.load(r)
-    asset = next((a for a in data.get("assets", []) if a.get("name") == EXE_ASSET), None)
-    return {
-        "tag": data.get("tag_name", ""),
-        "notes": data.get("body") or "",
-        "page": data.get("html_url") or HOMEPAGE + "/releases/latest",
-        "url": asset["browser_download_url"] if asset else None,
-        "size": asset["size"] if asset else 0,
-        # GitHub publishes "sha256:<hex>" for every asset; the swap below
-        # refuses anything that does not match it.
-        "digest": (asset.get("digest") or "") if asset else "",
-    }
-
-
-def check_download(path, info):
-    """The downloaded file's size and, when GitHub published one, its
-    SHA-256 must match the release - or the file is removed and this raises."""
-    got = os.path.getsize(path)
-    if info["size"] and got != info["size"]:
-        os.remove(path)
-        raise SystemExit("download was incomplete (%d of %d bytes) - try again"
-                         % (got, info["size"]))
-    if info["digest"].startswith("sha256:"):
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(1024 * 1024), b""):
-                h.update(chunk)
-        if h.hexdigest() != info["digest"][len("sha256:"):]:
-            os.remove(path)
-            raise SystemExit("download did not match the release's SHA-256 - not installed")
-
-
-def download(url, dest, progress=None, timeout=30):
-    """Stream `url` to `dest`, reporting (done, total) bytes along the way."""
-    with urllib.request.urlopen(_request(url), timeout=timeout) as r, open(dest, "wb") as f:
-        total = int(r.headers.get("Content-Length") or 0)
-        done = 0
-        while True:
-            chunk = r.read(256 * 1024)
-            if not chunk:
-                break
-            f.write(chunk)
-            done += len(chunk)
-            if progress:
-                progress(done, total)
-    return dest
-
-
-def swap_executable(new_path, exe_path):
-    """Put `new_path` where `exe_path` is, keeping the old one as .old."""
-    old = exe_path + ".old"
-    if os.path.exists(old):
-        os.remove(old)
-    os.rename(exe_path, old)
-    try:
-        os.replace(new_path, exe_path)
-    except Exception:
-        os.rename(old, exe_path)
-        raise
-    return exe_path
-
-
-def cleanup_old_executable():
-    """Remove the previous version left behind by a swap, if any."""
-    if not FROZEN:
-        return
-    old = os.path.abspath(sys.executable) + ".old"
-    try:
-        if os.path.exists(old):
-            os.remove(old)
-    except OSError:
-        pass  # the old process may still be shutting down; next start gets it
 
 ACCENT = "#6d4fc2"
 ACCENT_DARK = "#4a3391"
@@ -186,7 +80,6 @@ class App(tk.Tk):
         self.title("%s v%s" % (APP, VERSION))
         self.configure(bg=BG)
         self.minsize(760, 680)
-        cleanup_old_executable()
         try:
             self.iconbitmap(resource(os.path.join("assets", "mistria_mods.ico")))
         except Exception:
@@ -199,8 +92,6 @@ class App(tk.Tk):
         self.buttons = []
         self.detail_panels = {}   # slug -> (toggle label, panel frame)
 
-        self.update_info = None
-
         self._style()
         self._build()
         self.after(100, self._poll)
@@ -209,9 +100,6 @@ class App(tk.Tk):
             self.refresh()
         else:
             self.after(250, self.choose_folder)
-
-        # A quiet check on startup; a failed or offline check says nothing.
-        self.after(1500, lambda: self.check_updates(quiet=True))
 
     # --- look --------------------------------------------------------------
 
@@ -239,10 +127,6 @@ class App(tk.Tk):
         st.map("Accent.TButton", background=[("active", ACCENT_DARK), ("disabled", "#b9aee0")])
         st.configure("Status.TLabel", foreground=MUTED, font=("Segoe UI", 9))
         st.configure("Version.TLabel", foreground=MUTED, font=("Segoe UI", 11))
-        st.configure("Banner.TFrame", background="#efe8ff")
-        st.configure("Banner.TLabel", background="#efe8ff", foreground=ACCENT_DARK,
-                     font=("Segoe UI", 10, "bold"))
-        st.configure("BannerText.TLabel", background="#efe8ff", foreground=INK, font=("Segoe UI", 9))
 
     # --- layout ------------------------------------------------------------
 
@@ -256,21 +140,6 @@ class App(tk.Tk):
         ttk.Label(head, text="%d quality-of-life mods for Fields of Mistria, applied straight into assets.zip. "
                              "Tick what you want, press Apply." % len(MODS),
                   style="Sub.TLabel").pack(anchor="w")
-
-        # Update banner: hidden until a newer release is found.
-        self.banner = ttk.Frame(self, style="Banner.TFrame", padding=(14, 10))
-        self.banner_title = ttk.Label(self.banner, text="", style="Banner.TLabel")
-        self.banner_title.pack(anchor="w")
-        self.banner_text = ttk.Label(self.banner, text="", style="BannerText.TLabel", wraplength=640, justify="left")
-        self.banner_text.pack(anchor="w", pady=(2, 8))
-        banner_btns = ttk.Frame(self.banner, style="Banner.TFrame")
-        banner_btns.pack(anchor="w")
-        self.update_btn = ttk.Button(banner_btns, text="Download & install", style="Accent.TButton",
-                                     command=self.do_update)
-        self.update_btn.pack(side="left")
-        ttk.Button(banner_btns, text="Release notes", command=lambda: webbrowser.open(
-            (self.update_info or {}).get("page", HOMEPAGE))).pack(side="left", padx=(6, 0))
-        ttk.Button(banner_btns, text="Later", command=self.banner.pack_forget).pack(side="left", padx=(6, 0))
 
         folder = ttk.Frame(self)
         folder.pack(fill="x", padx=20, pady=(0, 10))
@@ -339,9 +208,11 @@ class App(tk.Tk):
         link.pack(side="right")
         link.bind("<Button-1>", lambda e: webbrowser.open(HOMEPAGE))
         ttk.Label(foot, text="  ·  ", style="Status.TLabel").pack(side="right")
-        upd = ttk.Label(foot, text="Check for updates", style="Status.TLabel", cursor="hand2")
-        upd.pack(side="right")
-        upd.bind("<Button-1>", lambda e: self.check_updates(quiet=False))
+        # No update check: the app never touches the network. New versions are
+        # a download from the releases page, swapped in by hand.
+        rel = ttk.Label(foot, text="New versions", style="Status.TLabel", cursor="hand2")
+        rel.pack(side="right")
+        rel.bind("<Button-1>", lambda e: webbrowser.open(RELEASES))
 
     def _row(self, mod, index):
         row = ttk.Frame(self.rows, style="Card.TFrame", padding=(12, 8))
@@ -425,13 +296,6 @@ class App(tk.Tk):
                         b.configure(state="normal")
                     self.status.set(payload)
                     self.refresh()
-                elif kind == "update":
-                    self._show_update(payload)
-                elif kind == "relaunch":
-                    if messagebox.askyesno(APP, "Updated to %s. Relaunch now?" % payload["tag"]):
-                        subprocess.Popen([payload["exe"]], cwd=os.path.dirname(payload["exe"]))
-                        self.destroy()
-                        return
         except queue.Empty:
             pass
         except Exception:
@@ -441,61 +305,6 @@ class App(tk.Tk):
                 b.configure(state="normal")
         finally:
             self.after(100, self._poll)
-
-    # --- updates -----------------------------------------------------------
-
-    def check_updates(self, quiet):
-        def work():
-            try:
-                info = latest_release()
-            except Exception as e:
-                if not quiet:
-                    self.log("Could not reach GitHub to check for updates (%s)." % e)
-                return
-            if version_tuple(info["tag"]) > version_tuple(VERSION):
-                self.events.put(("update", info))
-            elif not quiet:
-                self.log("You have the latest version (v%s)." % VERSION)
-        threading.Thread(target=work, daemon=True).start()
-
-    def _show_update(self, info):
-        self.update_info = info
-        first = " ".join(info["notes"].strip().split("\n")[0].split()) if info["notes"] else ""
-        self.banner_title.configure(text="Update available: %s (you have v%s)" % (info["tag"], VERSION))
-        self.banner_text.configure(text=first[:220] if first else "A newer release is on GitHub.")
-        if FROZEN and info["url"]:
-            self.update_btn.configure(text="Download & install (%.1f MB)" % (info["size"] / 1e6))
-        else:
-            self.update_btn.configure(text="Open release page")
-        self.banner.pack(fill="x", padx=20, pady=(0, 10), before=self.folder_frame)
-
-    def do_update(self):
-        info = self.update_info
-        if not info:
-            return
-        if not (FROZEN and info["url"]):
-            webbrowser.open(info["page"])
-            return
-
-        def fn():
-            exe = os.path.abspath(sys.executable)
-            new_path = os.path.join(os.path.dirname(exe), EXE_ASSET + ".new")
-            self.log("Downloading %s %s ..." % (EXE_ASSET, info["tag"]))
-            marks = set()
-
-            def progress(done, total):
-                pct = int(100 * done / total) if total else 0
-                if pct // 20 not in marks and total:
-                    marks.add(pct // 20)
-                    self.log("  %d%%" % pct)
-            download(info["url"], new_path, progress)
-            check_download(new_path, info)
-            swap_executable(new_path, exe)
-            self.log("Installed %s. The previous version is kept as %s.old until next launch."
-                     % (info["tag"], EXE_ASSET))
-            self.events.put(("relaunch", {"tag": info["tag"], "exe": exe}))
-
-        self.run("Updating to " + info["tag"], fn)
 
     def run(self, label, fn):
         if self.busy:
@@ -638,53 +447,10 @@ class App(tk.Tk):
         self.run("Verifying", fn)
 
 
-def headless_update():
-    """`MistriaMods.exe --update`: check, download, swap - no window.
-
-    Logs to MistriaMods-update.log beside the exe, since a windowed build
-    has no console. Exit code 0 on success or when already current, 1 on
-    an error, 2 on an incomplete download.
-    """
-    exe = os.path.abspath(sys.executable if FROZEN else __file__)
-    log_path = os.path.join(os.path.dirname(exe), "MistriaMods-update.log")
-
-    def log(msg):
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(msg + "\n")
-
-    try:
-        log("Mistria Mods v%s: checking %s" % (VERSION, RELEASES_API))
-        info = latest_release()
-        if version_tuple(info["tag"]) <= version_tuple(VERSION):
-            log("Up to date (latest is %s)." % info["tag"])
-            return 0
-        if not (FROZEN and info["url"]):
-            log("Newer release %s at %s - not a frozen build, nothing to swap."
-                % (info["tag"], info["page"]))
-            return 0
-        new_path = os.path.join(os.path.dirname(exe), EXE_ASSET + ".new")
-        log("Downloading %s (%d bytes)" % (info["url"], info["size"]))
-        download(info["url"], new_path)
-        try:
-            check_download(new_path, info)
-        except SystemExit as e:
-            log("Rejected: %s" % e)
-            return 2
-        swap_executable(new_path, exe)
-        log("Installed %s over %s; the previous version is kept as .old."
-            % (info["tag"], os.path.basename(exe)))
-        return 0
-    except Exception as e:
-        log("ERROR: %r" % (e,))
-        return 1
-
-
 def main():
     if "--version" in sys.argv:
         print("Mistria Mods v" + VERSION)
         return
-    if "--update" in sys.argv:
-        sys.exit(headless_update())
     App().mainloop()
 
 

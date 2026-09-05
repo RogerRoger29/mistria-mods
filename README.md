@@ -58,15 +58,12 @@ every anchor matches your copy of the game and changes nothing.
 
 ## Updating
 
-The app checks this repository's latest release when it starts and offers
-any newer version in a banner: **Download & install** fetches the new
-`MistriaMods.exe` beside the running one, swaps them, and relaunches. New
-mods ship the same way, so updating the app is how you get them. "Check for
-updates" in the footer does the same on demand. From source, `git pull`.
-
-For scripts, `MistriaMods.exe --update` does the whole thing without a
-window and writes what happened to `MistriaMods-update.log` beside the exe;
-`--version` prints the version.
+New versions, and new mods, are posted as [releases](../../releases). To
+update, download the new `MistriaMods.exe`, replace the old one in your game
+folder, and press **Apply** once so the current mods land in your archive.
+The app never connects to the internet: "New versions" in its footer just
+opens the releases page in your browser. `MistriaMods.exe --version` prints
+the version. From source, `git pull`.
 
 ## The mods
 
