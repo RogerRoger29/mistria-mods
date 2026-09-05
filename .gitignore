@@ -9,3 +9,6 @@ dist/
 
 # Never ship game data
 *.zip
+
+# Nexus upload kit (built locally, never committed)
+nexus/
