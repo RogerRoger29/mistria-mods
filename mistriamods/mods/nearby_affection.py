@@ -33,10 +33,10 @@ editing that source in place. Every insertion is wrapped in NEARBY_AFFECTION
 markers, which makes the patch idempotent and cleanly removable.
 
 Usage:
-    python nearby_affection.py --apply
-    python nearby_affection.py --apply --radius 80 --points 3
-    python nearby_affection.py --remove
-    python nearby_affection.py --status
+    python install.py apply nearby-affection
+    python install.py apply nearby-affection --radius 80 --points 3
+    python install.py remove nearby-affection
+    python install.py status nearby-affection
 """
 
 

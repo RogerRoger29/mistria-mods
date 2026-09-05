@@ -5,6 +5,8 @@ carries a looping white twinkle. An accessibility mod: the cue is luminance
 and motion, so it reads without any colour vision at all.
 
 Toggle: Settings → Accessibility → "Uncaught Insect Sparkles" (on by default).
+The setting is read when an insect spawns, so a change applies to the insects
+that appear after it.
 
 ## Install / uninstall
 

@@ -38,10 +38,10 @@ candidates and are deliberately excluded by the game, so they never move it.
 Toggleable in Settings > Accessibility ("Ladder Progress").
 
 Usage:
-    python ladder_progress.py --apply
-    python ladder_progress.py --apply --x 3 --y 60
-    python ladder_progress.py --remove
-    python ladder_progress.py --status
+    python install.py apply ladder-progress
+    python install.py apply ladder-progress --x 3 --y 60
+    python install.py remove ladder-progress
+    python install.py status ladder-progress
 """
 
 

@@ -17,7 +17,9 @@ Festival: Flower Festival, 21
 ```
 
 The key is a **real, rebindable control** — it appears in Settings → Controls
-next to everything else, so `V` is only the starting point.
+next to everything else, so `V` is only the starting point. On a controller it
+has no default button, because the vanilla layout leaves none free; bind one
+there.
 
 | Option | Default | Meaning |
 | --- | --- | --- |

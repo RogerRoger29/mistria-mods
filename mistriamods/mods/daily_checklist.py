@@ -111,7 +111,9 @@ function checklist_dry_crops() {
             if object_id_to_object_category(grid.node_object_id[ni]) != ObjectCategory.Crop {
                 continue;
             }
-            if grid.node_terrain_is_watered[ni] == false {
+            // The game's own test: tilled soil, dry, no rug - so farm forage and
+            // anything not on soil never count as thirsty.
+            if can_water_node(grid, ni) {
                 dry += 1;
             }
         }

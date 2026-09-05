@@ -11,7 +11,6 @@ called `fabricator`, which is why editing that source works at all.
 
 import os
 import re
-import shutil
 import sys
 import tomllib
 import zipfile
@@ -407,7 +406,9 @@ def apply_mod(archive, mod, opt):
 
 
 def is_installed(archive, mod):
-    for name in mod_files(mod):
+    # The mod's own files only: the fourteen localization tables are 5 MB
+    # each and only ever carry a block when the mod's own files do.
+    for name in mod.patches(mod.markers, mod.defaults()):
         if name not in archive.files:
             continue
         toml = name.endswith(".toml")

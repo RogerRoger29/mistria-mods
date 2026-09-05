@@ -95,7 +95,7 @@ Xp.gml's own parallel-test idiom verifies the curve.
 | --- | --- | --- | --- |
 | **Grand Wellspring** | 150 | +4 max mana again (six orbs with Attunement) | stat-bump idiom |
 | **Verdant Rain** | 155 | Growth also waters every tile it touches | Growth case + per-tile water action (vein-tools precedent) |
-| **Guardian Flame** | 150 | Take no damage while Dragon's Breath is active | GuardiansShield status during channel |
+| **Guardian Flame** | 150 | Dragon's Breath kindles a shield charge if none is banked; the first hit after the breath is absorbed | the breath's cap site in `cast_spell`, writing vanilla's own `invulnerable_hits` counter. (Changed in 1.2.0: the original "no damage while the breath burns" did nothing — vanilla already breaks out of its damage loop on `fire_breath_time > 0`) |
 | **Ritualist** | 150 | Casting grants double Magic XP | our own XP hook |
 
 ### Tier 5 — level 60 (200–210 essence)
@@ -205,15 +205,18 @@ them and left a `// mmapi_*` comment on each:
 
 | Site | Now anchored on |
 | --- | --- |
-| both spell-cost deductions | `ARI.modify_mana(-mmapi_apply_filters("spells.cost", …)); // mmapi_spell_loop_cost` and `… // mmapi_spell_default_cost` — two single anchors, since the comments differ |
+| both spell-cost deductions | `ARI.modify_mana(-mmapi_apply_filters("spells.cost", …));` — one anchor cut at the semicolon and expected twice, so the two sites' differing trailing comments (`// mmapi_spell_loop_cost`, `// mmapi_spell_default_cost`) don't matter |
 | the mana potion | `ARI.modify_mana(self.live_item.prototype.mana_modifier); // mmapi_player_mana_item_delta` (the bonus now uses `modify_mana` too) |
 | the damage gate | `if ARI.invulnerable_hits <= 0 {` followed by `var defense = …` (MMAPI moved `took_damage` into its flinch logic) |
 | the can-cast mirror | after MMAPI's `spells.can_cast` override return, so a mod's override still wins |
 
-The seamed archive is now the base the framework patches. The cost mirror and
-`magic_spell_cost()` still read the base `SPELLS[spell].cost`, not MMAPI's
-filtered cost — no installed mod filters `spells.cost`, and the framework
-must not call `mmapi_*` functions that only exist with MOMI's layer present.
+Both forms are carried as `Alternatives`, so the mod applies with or without
+MOMI. With MMAPI present, the cost mirror and the deduction hand
+`magic_spell_cost()` MMAPI's filtered price — `mmapi_apply_filters("spells.cost", …)`,
+exactly what the vanilla gate beside them reads — so a mod that filters spell
+costs is honoured; on a bare game they pass the base `SPELLS[spell].cost`.
+The helper itself never names an `mmapi_*` function, which only exists with
+MOMI's layer present.
 
 ## Caveats
 
@@ -232,3 +235,13 @@ must not call `mmapi_*` functions that only exist with MOMI's layer present.
    is the unused "crafting" domain icon, Mistmare's LUT recolor), the tenth
    journal tile, an XP toast from any cast, and — with five-plus orbs after
    Attunement — that the vitals HUD renders the extra orbs sanely.
+5. **The "one tier-5 perk per category" achievement** is computed from the
+   shrine data at run time, so a tenth tree would have become a tenth
+   requirement — a player midway through it would have seen it un-tick. The
+   mod skips the Magic tree in that count (a one-line guard in
+   `get_tier_five_perks_by_category()`), so the achievement stays the vanilla
+   nine categories. The requirement is derived, not saved, so removing the
+   mod restores vanilla either way.
+6. **A cutscene's Dragon's Breath** goes through `cast_spell` too; the XP
+   hook returns early while the Mist is running, so scripted breaths teach
+   nothing and never roll Mistria's Bounty.

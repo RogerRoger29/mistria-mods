@@ -5,7 +5,8 @@ until harvest - at any distance, not just what's in reach.
 
 The key is a **real, rebindable control**. It registers a new "Show Crop Labels"
 action that appears in *Settings > Controls* with everything else, so you can
-change it in game — no re-patching.
+change it in game — no re-patching. On a controller it has no default button,
+because the vanilla layout leaves none free; bind one there.
 
 The game gives you no way to identify a plant already in the ground — the
 grow-time tooltip only appears on seeds you're *holding* — so a row of young

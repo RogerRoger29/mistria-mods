@@ -159,7 +159,7 @@ PERK_DEFS = '''[attunement]
 
 [guardian_flame]
 \tname = "Guardian Flame"
-\tdescription = "While Dragon's Breath burns, you take no damage."
+\tdescription = "Casting Dragon's Breath kindles a shield charge if you have none. The first hit after the breath is absorbed."
 \tvalue = 1
 
 [ritualist]
@@ -321,7 +321,7 @@ CAN_CAST_EFFECT = '''//
 if ARI.perk_active(Perk.ApprenticesThrift) || ARI.perk_active(Perk.Twinflow) {
     if !instance_exists(obj_ari)
         || obj_ari.is_mounted()
-        || ARI.get_mana() < magic_spell_cost(spell)
+        || ARI.get_mana() < magic_spell_cost(spell, @COST@)
         || ARI.held_animal_id != undefined
     {
         return false;
@@ -337,6 +337,15 @@ if ARI.perk_active(Perk.ApprenticesThrift) || ARI.perk_active(Perk.Twinflow) {
     }
 }
 '''
+
+# The base price each form hands the helper: MMAPI's `spells.cost` filter
+# is a first-class hook other mods may register on, so with MOMI's layer
+# present the mirror reads the filtered price exactly as the vanilla gate
+# beside it does; on a bare game that function does not exist.
+COST_MMAPI = 'mmapi_apply_filters("spells.cost", SPELLS[spell].cost, spell)'
+COST_VANILLA = "SPELLS[spell].cost"
+CAN_CAST_EFFECT_MMAPI = CAN_CAST_EFFECT.replace("@COST@", COST_MMAPI)
+CAN_CAST_EFFECT_VANILLA = CAN_CAST_EFFECT.replace("@COST@", COST_VANILLA)
 
 CAST_ANCHOR = "function cast_spell(spell) {\n"
 
@@ -394,6 +403,29 @@ if ARI.perk_active(Perk.KindledFocus) {
 if ARI.perk_active(Perk.EternalFlame) {
     ARI.fire_breath_time = round(ARI.fire_breath_time * ARI.perk_value(Perk.EternalFlame));
 }
+//
+// Guardian Flame: the breath kindles a shield charge if none is banked.
+// Vanilla already ignores every hit while the breath burns (obj_ari breaks
+// out of its damage loop on fire_breath_time > 0), so the charge matters
+// the moment it ends: its own counter absorbs the first hit after the
+// breath and plays the shield-break effect. Registering the status puts
+// the shield icon on the HUD, as entering the mines does for Guardian's
+// Shield. Not in cutscenes, which breathe fire through this same case.
+//
+if ARI.perk_active(Perk.GuardianFlame)
+    && ARI.invulnerable_hits <= 0
+    && !MIST.is_running()
+{
+    ARI.invulnerable_hits = 1;
+    if ARI.status_effects.effects.get(StatusEffectId.GuardiansShield) == undefined {
+        ARI.status_effects.register(
+            StatusEffectId.GuardiansShield,
+            undefined,
+            CALENDAR.unified_time(),
+            I32_MAX,
+        );
+    }
+}
 '''
 
 SL_ANCHOR = """                time + fiddle_get("misc/sacred_light_duration") * 60,
@@ -446,8 +478,9 @@ HELPERS = '''
 // A spell's cost after Apprentice's Thrift and Twinflow. A spell that is
 // already free stays free; a paid spell never drops below 1.
 //
-function magic_spell_cost(spell) {
-    var cost = SPELLS[spell].cost;
+function magic_spell_cost(spell, cost) {
+    // `cost` is the base price the call site read - MMAPI's filtered price
+    // when MOMI's layer is present, SPELLS[spell].cost on a bare game.
     if cost <= 0 {
         return cost;
     }
@@ -466,6 +499,11 @@ function magic_spell_cost(spell) {
 // Bounty rolls its essence here so every cast path pays out once.
 //
 function magic_skill_on_cast(spell) {
+    // Cutscenes breathe fire through cast_spell too; a scripted breath
+    // teaches nothing and conjures nothing.
+    if MIST.is_running() {
+        return;
+    }
     var xp = 8;
     switch spell {
         case Spell.FireBreath: xp = 6; break;
@@ -630,7 +668,7 @@ DEDUCT_POST = '''//
 // Magic Skill: charge exactly the discounted cost - correct at every
 // boundary, an empty pool included - then roll Arcane Economy.
 //
-var magic_due = magic_spell_cost(self.spell);
+var magic_due = magic_spell_cost(self.spell, @COST@);
 ARI.set_mana(magic_before - magic_due);
 if ARI.perk_active(Perk.ArcaneEconomy)
     && chance_percent(ARI.perk_value(Perk.ArcaneEconomy))
@@ -638,6 +676,12 @@ if ARI.perk_active(Perk.ArcaneEconomy)
     ARI.modify_mana(magic_due);
 }
 '''
+
+# The cast state names the spell `self.spell`; same two prices as the mirror.
+COST_MMAPI_SELF = 'mmapi_apply_filters("spells.cost", SPELLS[self.spell].cost, self.spell)'
+COST_VANILLA_SELF = "SPELLS[self.spell].cost"
+DEDUCT_POST_MMAPI = DEDUCT_POST.replace("@COST@", COST_MMAPI_SELF)
+DEDUCT_POST_VANILLA = DEDUCT_POST.replace("@COST@", COST_VANILLA_SELF)
 
 # Two forms: MMAPI reroutes the potion through modify_mana (its
 # player_mana_item_delta seam); vanilla adds through set_mana. The bonus
@@ -680,31 +724,28 @@ case Perk.GrandWellspring:
     break;
 '''
 
-# --- Guardian Flame ----------------------------------------------------------
+# --- the tier-5 achievement --------------------------------------------------
 #
-# The one damage gate every tarball hit passes through. The +1 is consumed by
-# the decrement branch immediately below the gate, so banked Guardian's
-# Shield charges are never spent on a hit this perk absorbed.
+# "One tier-5 perk in every category" is computed from DRAGON_SHRINE_DATA's
+# keys, so a tenth tree would silently become a tenth requirement - and a
+# player midway through the achievement would see it un-tick. Skip ours.
 
-# Two forms: with MMAPI the line after the gate is the mitigation call
-# (took_damage moved into its flinch logic); vanilla has took_damage there.
-GATE_ANCHOR_MMAPI = """                if ARI.invulnerable_hits <= 0 {
-                    var defense = ARI.get_damage_mitigation();
-"""
-GATE_ANCHOR_VANILLA = """                if ARI.invulnerable_hits <= 0 {
-                    took_damage = true;
-"""
+ACHIEVEMENT_ANCHOR = ("    var keys = DRAGON_SHRINE_DATA.keys();\n"
+                      "    for (var i = 0; i < array_length(keys); i++) {\n")
 
-GATE_EFFECT = '''//
-// Guardian Flame: while Dragon's Breath burns, absorb the hit like a
-// shield charge.
+ACHIEVEMENT_EFFECT = '''//
+// Magic Skill: the vanilla "one tier-5 perk per category" achievement stays
+// a nine-category achievement - the Magic tree is extra, not a requirement.
 //
-if ARI.perk_active(Perk.GuardianFlame)
-    && ARI.status_effects.effects.get(StatusEffectId.FlameBreath) != undefined
-{
-    ARI.invulnerable_hits += 1;
+if keys[i] == "magic" {
+    continue;
 }
 '''
+
+# Versions 1.0-1.1 wrote a Guardian Flame block into obj_ari's damage gate.
+# It was unreachable (vanilla breaks out of that loop while the breath burns)
+# and is gone; the file stays listed with no edits so re-applying over an
+# older install still strips it.
 
 # --- Dreamer's Well ----------------------------------------------------------
 #
@@ -788,9 +829,9 @@ def patches(mk, opt):
         SPELLS_GML: [
             Alternatives(
                 (CAN_CAST_ANCHOR_MMAPI,
-                 CAN_CAST_ANCHOR_MMAPI + mk.block(CAN_CAST_EFFECT, " " * 4)),
+                 CAN_CAST_ANCHOR_MMAPI + mk.block(CAN_CAST_EFFECT_MMAPI, " " * 4)),
                 (CAN_CAST_ANCHOR_VANILLA,
-                 CAN_CAST_ANCHOR_VANILLA + mk.block(CAN_CAST_EFFECT, " " * 4))),
+                 CAN_CAST_ANCHOR_VANILLA + mk.block(CAN_CAST_EFFECT_VANILLA, " " * 4))),
             (CAST_ANCHOR, CAST_ANCHOR + mk.block(CAST_EFFECT, " " * 4)),
             (RESTORE_ANCHOR,
              RESTORE_ANCHOR + mk.block(RESTORE_EFFECT, " " * 12)),
@@ -813,11 +854,11 @@ def patches(mk, opt):
                 (DEDUCT_ANCHOR_MMAPI,
                  mk.block(DEDUCT_PRE, " " * 28)
                  + DEDUCT_ANCHOR_MMAPI
-                 + mk.block(DEDUCT_POST, " " * 28), 2),
+                 + mk.block(DEDUCT_POST_MMAPI, " " * 28), 2),
                 (DEDUCT_ANCHOR_VANILLA,
                  mk.block(DEDUCT_PRE, " " * 28)
                  + DEDUCT_ANCHOR_VANILLA
-                 + mk.block(DEDUCT_POST, " " * 28), 2)),
+                 + mk.block(DEDUCT_POST_VANILLA, " " * 28), 2)),
             Alternatives(
                 (POTION_ANCHOR_MMAPI,
                  POTION_ANCHOR_MMAPI + mk.block(POTION_EFFECT, " " * 28)),
@@ -828,11 +869,8 @@ def patches(mk, opt):
         ARI: [(ACQUIRE_ANCHOR,
                ACQUIRE_ANCHOR + mk.block(ACQUIRE_EFFECT, " " * 12))],
 
-        OBJ_ARI: [Alternatives(
-            (GATE_ANCHOR_MMAPI,
-             mk.block(GATE_EFFECT, " " * 16) + GATE_ANCHOR_MMAPI),
-            (GATE_ANCHOR_VANILLA,
-             mk.block(GATE_EFFECT, " " * 16) + GATE_ANCHOR_VANILLA))],
+        # No edits since 1.2.0 - listed so the 1.0-1.1 block is stripped.
+        OBJ_ARI: [],
 
         NEWDAY: [(WAKE_ANCHOR, WAKE_ANCHOR + mk.block(WAKE_EFFECT, " " * 4))],
 
@@ -840,6 +878,8 @@ def patches(mk, opt):
             (LOAD_ANCHOR, LOAD_ANCHOR + mk.block(LOAD_EFFECT, " " * 4)),
             (ROW_ANCHOR, ROW_ANCHOR + mk.block(ROW_EFFECT, " " * 8)),
             (TILE_ANCHOR, TILE_ANCHOR + mk.block(TILE_EFFECT, " " * 12)),
+            (ACHIEVEMENT_ANCHOR,
+             ACHIEVEMENT_ANCHOR + mk.block(ACHIEVEMENT_EFFECT, " " * 8)),
         ],
 
         LOCAL: [(mk.APPEND, mk.block(LABELS, toml=True))],

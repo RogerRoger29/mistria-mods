@@ -53,6 +53,9 @@ Re-run `--apply` with new numbers any time; it re-patches from clean each run.
 python mistria-mods/install.py apply nearby-affection --radius 96 --points 4
 ```
 
+Curious Neighbours has a `--radius` of its own, so with `--all` the bare flag
+reaches both; `--nearby-affection-radius` sets this one alone.
+
 ## Rules it follows
 
 - Fires on the first conversation of a day with an NPC, and on giving a gift.

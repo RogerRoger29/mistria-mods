@@ -35,9 +35,9 @@ assets.zip at startup. Insertions are wrapped in INSTANT_TOOLS markers, so the
 patch is idempotent, removable, and composes with the other mods.
 
 Usage:
-    python instant_tools.py --apply
-    python instant_tools.py --remove
-    python instant_tools.py --status
+    python install.py apply instant-tools
+    python install.py remove instant-tools
+    python install.py status instant-tools
 """
 
 

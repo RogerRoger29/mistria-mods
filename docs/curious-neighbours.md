@@ -42,6 +42,9 @@ saves a copy of your archive as `assets.pre-curious-neighbours.zip`.
 python mistria-mods/install.py apply curious-neighbours --radius 32
 ```
 
+Nearby Affection has a `--radius` of its own, so with `--all` the bare flag
+reaches both; `--curious-neighbours-radius` sets this one alone.
+
 ## Rules it follows
 
 - **Only villagers you've met react.** A stranger has no opinion about your turnips.

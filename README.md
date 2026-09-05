@@ -32,7 +32,7 @@ folder — the one with `FieldsOfMistria.exe` and `assets.zip`, the same place
 MOMI goes — and run it with the game **closed**. Tick the mods you want and
 press **Apply**. Untick and press **Remove** to take any of them out again.
 
-**From source (any platform):** you need Python 3, nothing else. Put this
+**From source (any platform):** you need Python 3.11 or newer, nothing else. Put this
 folder inside the game folder as `mistria-mods`, then:
 
 ```bash
@@ -137,7 +137,8 @@ everything else.
 - **Close the game first.** Windows will not let the archive be replaced while
   the game holds it open; the installer says so rather than failing obscurely.
 - **Needs about 1.3 GB free** while rewriting — the archive is ~600 MB and is
-  rebuilt to a temp file before replacing.
+  rebuilt to a temp file before replacing — and about 700 MB of memory while
+  it works, since the archive is held in RAM to be rewritten in one pass.
 - **Game version.** Anchors are exact text matches against the game's source,
   tested on **1.0.4**. A game update can invalidate some; `Check` tells you
   exactly which, and nothing is written until every anchor matches.

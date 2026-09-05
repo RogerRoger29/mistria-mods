@@ -28,6 +28,15 @@ class ZipView(object):
     def read(self, name):
         return self._zip.read(name).decode("utf-8")
 
+    def close(self):
+        self._zip.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
 
 def momi_manifest():
     """Mods MOMI's last run reports as applied, or None without a manifest."""
@@ -100,11 +109,11 @@ def verify_mod(archive, mod):
 
 def verify_all(archive_path, mods):
     """[(mod, ok, [details]), ...] for every mod, against one archive."""
-    archive = ZipView(archive_path)
-    return [(mod,) + verify_mod(archive, mod) for mod in mods]
+    with ZipView(archive_path) as archive:
+        return [(mod,) + verify_mod(archive, mod) for mod in mods]
 
 
 def installed_states(archive_path, mods):
     """{slug: bool} - which mods are present in the archive right now."""
-    archive = ZipView(archive_path)
-    return {mod.SLUG: patcher.is_installed(archive, mod) for mod in mods}
+    with ZipView(archive_path) as archive:
+        return {mod.SLUG: patcher.is_installed(archive, mod) for mod in mods}

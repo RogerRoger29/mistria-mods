@@ -35,9 +35,9 @@ assets.zip at startup. Insertions are wrapped in MAP_NAME_LABELS markers, so
 the patch is idempotent, removable, and composes with the other mods.
 
 Usage:
-    python map_name_labels.py --apply
-    python map_name_labels.py --remove
-    python map_name_labels.py --status
+    python install.py apply map-name-labels
+    python install.py remove map-name-labels
+    python install.py status map-name-labels
 """
 
 

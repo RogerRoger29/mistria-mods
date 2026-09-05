@@ -38,7 +38,7 @@ from ..patcher import Markers
 SLUG = "uncaught_flora"
 NAME = "Uncaught Flora"
 SUMMARY = "Wild forage, bushes and fruit trees the museum's Flora wing still needs twinkle too."
-DETAILS = """The same twinkle on plants: wild forage such as mushrooms, herbs and wild flowers, harvestable bushes, and fruit trees whose harvest the museum's Flora wing still lacks. Farm crops are deliberately left out, since a field of forty twinkling turnips would drown the signal - you know what you planted. Bush and tree twinkles reflect the species rather than whether fruit is on it right now, and refresh when you re-enter an area. Toggle under Settings > Accessibility."""
+DETAILS = """The same twinkle on plants: wild forage such as mushrooms, herbs and wild flowers, harvestable bushes, and fruit trees whose harvest the museum's Flora wing still lacks. Farm crops are deliberately left out, since a field of forty twinkling turnips would drown the signal - you know what you planted. Bush and tree twinkles reflect the species rather than whether fruit is on it right now, and refresh when you re-enter an area. Toggle under Settings > Accessibility; a change takes effect when you next enter an area."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

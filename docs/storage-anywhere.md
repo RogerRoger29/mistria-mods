@@ -5,6 +5,9 @@ wherever you're standing.
 
 The key is a real, rebindable control — it appears in Settings → Controls as
 "Open Chest Picker". There's an Accessibility toggle, "Storage Anywhere".
+On a controller it has no default button, because the vanilla layout leaves
+none free; bind one there. (The pin key does default to X/west — it only
+applies inside the picker, where that button is unused.)
 
 Every row carries a **pin icon on its left edge — click it** to pin or unpin
 that chest with the mouse alone (faint = unpinned, solid = pinned), or press

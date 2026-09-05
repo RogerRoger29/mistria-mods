@@ -43,10 +43,10 @@ Tools installed each of those is a clean break; without it, they all take a
 swing's worth of damage together.
 
 Usage:
-    python vein_tools.py --apply
-    python vein_tools.py --apply --max 400
-    python vein_tools.py --remove
-    python vein_tools.py --status
+    python install.py apply vein-tools
+    python install.py apply vein-tools --max 400
+    python install.py remove vein-tools
+    python install.py status vein-tools
 """
 
 

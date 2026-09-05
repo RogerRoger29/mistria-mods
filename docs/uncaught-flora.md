@@ -6,6 +6,8 @@ carries the same looping white twinkle: wild forage (mushrooms, herbs, wild
 flowers), harvestable bushes, and fruit trees. Luminance and motion only.
 
 Toggle: Settings → Accessibility → "Uncaught Forage Sparkles" (on by default).
+The setting is read when an area loads, so a change applies when you next
+enter an area.
 
 ## Install / uninstall
 

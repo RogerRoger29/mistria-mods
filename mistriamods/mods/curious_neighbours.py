@@ -39,10 +39,10 @@ assets.zip at startup. Insertions are wrapped in CURIOUS_NEIGHBOURS markers, so
 the patch is idempotent, removable, and composes with other marker-based mods.
 
 Usage:
-    python curious_neighbours.py --apply
-    python curious_neighbours.py --apply --radius 32
-    python curious_neighbours.py --remove
-    python curious_neighbours.py --status
+    python install.py apply curious-neighbours
+    python install.py apply curious-neighbours --radius 32
+    python install.py remove curious-neighbours
+    python install.py status curious-neighbours
 """
 
 

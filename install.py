@@ -24,7 +24,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from mistriamods import patcher
+from mistriamods import patcher, verifier
 from mistriamods.registry import MODS, by_slug, GAME_DIR, ASSETS, BACKUP
 
 
@@ -58,9 +58,12 @@ def _selected(args):
 
 
 def _options_for(mod, args):
+    """The mod's options: its namespaced flag wins, then the bare flag."""
     opt = mod.defaults()
     for k in opt:
-        v = getattr(args, k, None)
+        v = getattr(args, mod.SLUG + "__" + k, None)
+        if v is None:
+            v = getattr(args, k, None)
         if v is not None:
             opt[k] = v
     return opt
@@ -71,7 +74,7 @@ def _report_check(mod, report):
     print("  [%s] %s" % ("x" if ok else "!", mod.SLUG.replace("_", "-")))
     for name, good, detail in report:
         if not good:
-            print("        %s: %s" % (os.path.basename(name), detail))
+            print("        %s: %s" % (verifier.short(name), detail))
     return ok
 
 
@@ -163,24 +166,45 @@ def main():
         sp.add_argument("--all", action="store_true", help="every mod")
         sp.set_defaults(func=fn)
 
-    # Per-mod options, hung off `apply` and `check`.
-    seen = {}
+    # Per-mod options, hung off `apply` and `check`. Every option has a
+    # namespaced flag (--nearby-affection-radius) that reaches one mod; the
+    # bare flag (--radius) is registered once and reaches every mod that
+    # declares that name, which matters with --all.
+    declared = {}
     for mod in MODS:
-        for k, (ty, dv, help_) in mod.OPTIONS.items():
-            if k in seen:
-                continue
-            seen[k] = True
-            for ap in (sub.choices["apply"], sub.choices["check"]):
+        for k in mod.OPTIONS:
+            declared.setdefault(k, []).append(mod.SLUG.replace("_", "-"))
+    for ap in (sub.choices["apply"], sub.choices["check"]):
+        seen = set()
+        for mod in MODS:
+            slug = mod.SLUG.replace("_", "-")
+            for k, (ty, dv, help_) in mod.OPTIONS.items():
+                flag = k.replace("_", "-")
+                dest = mod.SLUG + "__" + k
+                if ty is bool:
+                    ap.add_argument("--no-%s-%s" % (slug, flag), dest=dest,
+                                    action="store_false", default=None,
+                                    help="disable, for %s only: %s" % (slug, help_))
+                else:
+                    ap.add_argument("--%s-%s" % (slug, flag), dest=dest, type=ty,
+                                    default=None,
+                                    help="for %s only: %s (default %s)" % (slug, help_, dv))
+                if k in seen:
+                    continue
+                seen.add(k)
+                note = ""
+                if len(declared[k]) > 1:
+                    note = " [shared by %s]" % ", ".join(declared[k])
                 if ty is bool:
                     ap.add_argument("--no-" + k, dest=k, action="store_false",
-                                    default=None, help="disable: " + help_)
+                                    default=None, help="disable: " + help_ + note)
                 else:
                     # Accept both --chest_key and --chest-key spellings.
                     names = ["--" + k]
                     if "_" in k:
-                        names.append("--" + k.replace("_", "-"))
+                        names.append("--" + flag)
                     ap.add_argument(*names, type=ty, default=None,
-                                    help="%s (default %s)" % (help_, dv))
+                                    help="%s (default %s)%s" % (help_, dv, note))
 
     args = p.parse_args()
     if args.cmd == "list":

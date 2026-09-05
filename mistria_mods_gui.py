@@ -7,6 +7,7 @@ does, with a checklist and a log. Built into a single MistriaMods.exe with
 PyInstaller; runs from source too.
 """
 
+import hashlib
 import json
 import os
 import queue
@@ -69,7 +70,28 @@ def latest_release(timeout=8):
         "page": data.get("html_url") or HOMEPAGE + "/releases/latest",
         "url": asset["browser_download_url"] if asset else None,
         "size": asset["size"] if asset else 0,
+        # GitHub publishes "sha256:<hex>" for every asset; the swap below
+        # refuses anything that does not match it.
+        "digest": (asset.get("digest") or "") if asset else "",
     }
+
+
+def check_download(path, info):
+    """The downloaded file's size and, when GitHub published one, its
+    SHA-256 must match the release - or the file is removed and this raises."""
+    got = os.path.getsize(path)
+    if info["size"] and got != info["size"]:
+        os.remove(path)
+        raise SystemExit("download was incomplete (%d of %d bytes) - try again"
+                         % (got, info["size"]))
+    if info["digest"].startswith("sha256:"):
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                h.update(chunk)
+        if h.hexdigest() != info["digest"][len("sha256:"):]:
+            os.remove(path)
+            raise SystemExit("download did not match the release's SHA-256 - not installed")
 
 
 def download(url, dest, progress=None, timeout=30):
@@ -273,7 +295,11 @@ class App(tk.Tk):
         self.rows_id = self.canvas.create_window((0, 0), window=self.rows, anchor="nw")
         self.rows.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.bind("<Configure>", lambda e: self.canvas.itemconfigure(self.rows_id, width=e.width))
-        self.canvas.bind_all("<MouseWheel>", lambda e: self.canvas.yview_scroll(-int(e.delta / 120), "units"))
+        # Wheel scrolling only while the pointer is over the list, so the log
+        # box below keeps its own scrolling.
+        wheel = lambda e: self.canvas.yview_scroll(-int(e.delta / 120), "units")  # noqa: E731
+        self.canvas.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", wheel))
+        self.canvas.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
 
         for i, mod in enumerate(MODS):
             self._row(mod, i)
@@ -383,6 +409,8 @@ class App(tk.Tk):
         self.events.put(("log", line))
 
     def _poll(self):
+        # Whatever one event does, the pump must keep running: a handler
+        # that raised would otherwise leave the buttons disabled for good.
         try:
             while True:
                 kind, payload = self.events.get_nowait()
@@ -406,7 +434,13 @@ class App(tk.Tk):
                         return
         except queue.Empty:
             pass
-        self.after(100, self._poll)
+        except Exception:
+            self.log(traceback.format_exc())
+            self.busy = False
+            for b in self.buttons:
+                b.configure(state="normal")
+        finally:
+            self.after(100, self._poll)
 
     # --- updates -----------------------------------------------------------
 
@@ -455,9 +489,7 @@ class App(tk.Tk):
                     marks.add(pct // 20)
                     self.log("  %d%%" % pct)
             download(info["url"], new_path, progress)
-            if info["size"] and os.path.getsize(new_path) != info["size"]:
-                os.remove(new_path)
-                raise SystemExit("download was incomplete - try again")
+            check_download(new_path, info)
             swap_executable(new_path, exe)
             self.log("Installed %s. The previous version is kept as %s.old until next launch."
                      % (info["tag"], EXE_ASSET))
@@ -576,16 +608,16 @@ class App(tk.Tk):
         mods = self.selected() or list(MODS)
 
         def fn():
-            archive = verifier.ZipView(registry.ASSETS)
             bad = 0
-            for mod in mods:
-                report = patcher.check_mod(archive, mod)
-                ok = all(good for _, good, _ in report)
-                self.log("  [%s] %s" % ("ok" if ok else "!!", mod.NAME))
-                for name, good, detail in report:
-                    if not good:
-                        self.log("        %s: %s" % (os.path.basename(name), detail))
-                        bad += 1
+            with verifier.ZipView(registry.ASSETS) as archive:
+                for mod in mods:
+                    report = patcher.check_mod(archive, mod)
+                    ok = all(good for _, good, _ in report)
+                    self.log("  [%s] %s" % ("ok" if ok else "!!", mod.NAME))
+                    for name, good, detail in report:
+                        if not good:
+                            self.log("        %s: %s" % (verifier.short(name), detail))
+                            bad += 1
             self.log("Check complete: %s." % ("every anchor matches" if not bad
                                               else "%d problem(s), see above" % bad))
 
@@ -633,10 +665,10 @@ def headless_update():
         new_path = os.path.join(os.path.dirname(exe), EXE_ASSET + ".new")
         log("Downloading %s (%d bytes)" % (info["url"], info["size"]))
         download(info["url"], new_path)
-        got = os.path.getsize(new_path)
-        if info["size"] and got != info["size"]:
-            os.remove(new_path)
-            log("Incomplete download: %d of %d bytes." % (got, info["size"]))
+        try:
+            check_download(new_path, info)
+        except SystemExit as e:
+            log("Rejected: %s" % e)
             return 2
         swap_executable(new_path, exe)
         log("Installed %s over %s; the previous version is kept as .old."

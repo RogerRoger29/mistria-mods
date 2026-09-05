@@ -35,10 +35,10 @@ Reads regrowing crops correctly - after the first harvest they follow a shorter
 schedule, and the countdown uses that one.
 
 Usage:
-    python crop_labels.py --apply
-    python crop_labels.py --apply --key V
-    python crop_labels.py --remove
-    python crop_labels.py --status
+    python install.py apply crop-labels
+    python install.py apply crop-labels --key V
+    python install.py remove crop-labels
+    python install.py status crop-labels
 """
 
 
