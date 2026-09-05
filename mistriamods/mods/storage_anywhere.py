@@ -29,6 +29,7 @@ from ..patcher import Markers
 SLUG = "storage_anywhere"
 NAME = "Storage Anywhere"
 SUMMARY = "Press B for a list of every chest in the world and open any of them from where you stand; pin favourites with P."
+DETAILS = """Press B for a list of every chest in the world, grouped by location, and open any of them from wherever you stand. Chests in your current room come first, the one you opened last is pre-selected, and each row shows the chest's name, how full it is, a preview of what is inside, and whether it feeds crafting. Pin your favourites so they always sit at the top: click the pin icon on a row, or press P on it. Fridges, the stable chest, miners' crates, the shipping bin and turn-in boxes are all included, with no range limit. Both keys are real controls, rebindable under Settings > Controls, and pins are remembered in your settings file, never in your save."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

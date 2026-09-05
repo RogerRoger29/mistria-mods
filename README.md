@@ -52,6 +52,14 @@ python mistria-mods/install.py apply crop-labels vein-tools --max 400
 `python mistria-mods/install.py check --all` is a dry run: it reports whether
 every anchor matches your copy of the game and changes nothing.
 
+## Updating
+
+The app checks this repository's latest release when it starts and offers
+any newer version in a banner: **Download & install** fetches the new
+`MistriaMods.exe` beside the running one, swaps them, and relaunches. New
+mods ship the same way, so updating the app is how you get them. "Check for
+updates" in the footer does the same on demand. From source, `git pull`.
+
 ## The mods
 
 | Mod | What it does | In-game control |
@@ -142,11 +150,17 @@ Adding a mod means adding one file under `mods/` and listing it in
 `registry.py`. All the shared machinery lives in `patcher.py` — deliberately,
 so there is exactly one place to fix a bug in it.
 
-## Building the app
+## Building the app and cutting a release
 
 ```bash
 python -m PyInstaller --onefile --windowed --name MistriaMods --icon assets/mistria_mods.ico --add-data "assets/mistria_mods.ico;assets" mistria_mods_gui.py
 ```
+
+To release: bump `VERSION` in `mistriamods/__init__.py`, build, commit, tag, and
+publish `dist/MistriaMods.exe` as the release asset named exactly
+`MistriaMods.exe` — that name is what installed apps look for. Adding a mod is
+one file under `mods/`, a line in `registry.py`, a `SUMMARY` and `DETAILS`
+for the app to show, and a doc page; then a release carries it to everyone.
 
 ## License
 

@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "nearby_affection"
 NAME = "Nearby Affection"
 SUMMARY = "Bystanders within eight tiles gain a little affection when you talk to or gift someone."
+DETAILS = """When you talk to a villager or give them a gift, every villager you have met who is standing nearby (about eight tiles) also gains a little affection, once each per day, with a small heart bubble over their head. It goes through the game's own heart system, so level-ups, sparkles and jingles happen exactly as they normally would. Caldarus and Seridia are skipped below six hearts, matching the game's own rule for them. Nothing is written to your save."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

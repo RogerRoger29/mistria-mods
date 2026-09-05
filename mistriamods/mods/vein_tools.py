@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "vein_tools"
 NAME = "Vein Tools"
 SUMMARY = "Water a whole crop patch or mine a whole vein of rock in one swing; reach scales with tool tier."
+DETAILS = """Water one plant and the whole connected patch is watered; hit one rock and the swing lands on every connected rock of that kind. Four toggles under Settings > Accessibility: Vein Watering (on), Vein Watering: Any Crop (off), Vein Mining (on), Vein Mining: Any Rock (off). Reach scales with your tool tier, from 8 tiles up to 200, which finally gives hoes and watering cans a reason to upgrade. Under the hood it calls the game's own watering and mining actions once per tile, so stamina, XP, essence, perks and sounds all behave normally. Mining spreads diagonally, watering orthogonally, and only uncharged swings trigger it."""
 LEGACY = ['VEIN_WATERING']
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

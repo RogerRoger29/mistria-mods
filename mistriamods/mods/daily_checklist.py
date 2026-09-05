@@ -13,6 +13,7 @@ from ..patcher import Markers
 SLUG = "daily_checklist"
 NAME = "Daily Checklist"
 SUMMARY = "Hold V for today's unwatered crops, ungreeted villagers, gifts, birthdays and festivals."
+DETAILS = """Hold V for a panel of what is left today and what is coming up: crops that still need watering, villagers you have not greeted, gifts you can still give, the next birthday and the next festival. It only counts villagers you have actually met, so it never hints at someone you have not been introduced to. The key is a real control called Show Checklist and can be rebound under Settings > Controls."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

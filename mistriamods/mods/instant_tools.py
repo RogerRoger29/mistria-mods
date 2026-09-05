@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "instant_tools"
 NAME = "Instant Tools"
 SUMMARY = "Trees and rocks break in one swing, still charging the full stamina."
+DETAILS = """Your axe fells a tree and your pickaxe breaks a rock in a single swing, but you still pay the stamina for every swing it would normally have taken. If you cannot afford the whole job, you get an ordinary single hit instead, so you are never surprised by a faint. Tool-tier requirements are untouched, and explosions, monsters and cutscenes still work the old way. One side effect to know about: essence is granted per swing in the game, so fewer swings means a little less essence. Toggle under Settings > Accessibility."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

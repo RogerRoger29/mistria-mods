@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "map_name_labels"
 NAME = "Map Name Labels"
 SUMMARY = "Hover a villager's head on the map screen to see their name."
+DETAILS = """Hover over a villager's head icon on the map screen and their name appears on a tooltip card. Villagers you have not met yet read as ???. On by default; switch it off under Settings > Accessibility. There is a command-line option to draw the name as plain text without the card."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

@@ -25,6 +25,7 @@ from ..patcher import Markers
 SLUG = "unreleased_perks"
 NAME = "Unreleased Perks"
 SUMMARY = "Two finished perks the game never put in a tree: Gemini Season and Ancient Inspiration."
+DETAILS = """Two perks the game fully implements but never placed in any skill tree, put where they belong. Gemini Season (Ranching): your animals have a chance to bear twins. Ancient Inspiration (Blacksmithing): a weekly chance to discover a new recipe. Both already have their artwork in the game; this adds nothing but the tree entries."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

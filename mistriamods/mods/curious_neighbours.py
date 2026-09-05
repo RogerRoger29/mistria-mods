@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "curious_neighbours"
 NAME = "Curious Neighbours"
 SUMMARY = "Villagers you walk past react to the item you are carrying with their true gift opinion."
+DETAILS = """Walk within about five tiles of a villager you have met while holding an item, and they show a thought bubble with their honest opinion of it as a gift: a heart for loved, a cute face for liked, ellipses for disliked, a sweat drop for hated, nothing for neutral. It fires when the item in your hand changes, so a crowd never spams you, and it never talks over an existing bubble, a chat between villagers, or a cutscene. Note that it reveals their true preferences, not just the ones you have discovered - handy, and a little spoilery by design."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "crop_labels"
 NAME = "Crop Labels"
 SUMMARY = "Hold F to see what a crop is and how many days until harvest."
+DETAILS = """Hold F and the crop you are aiming at shows its name and how many days until harvest, from any distance. It understands regrowing crops, so a strawberry plant that has already fruited tells you the regrowth time rather than the full growth time. The key is a real control called Show Crop Labels and can be rebound under Settings > Controls."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

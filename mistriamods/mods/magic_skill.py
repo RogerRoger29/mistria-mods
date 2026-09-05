@@ -41,6 +41,7 @@ from ..patcher import Alternatives, Markers
 SLUG = "magic_skill"
 NAME = "Magic Skill"
 SUMMARY = "A tenth skill: casting spells earns XP, and a 19-perk Magic tree opens on Seridia's shrine."
+DETAILS = """A tenth skill, Magic. Every spell you cast earns Magic XP, you level from 1 to 60 exactly like the other skills, and a Magic tree appears on Seridia's shrine beside Mining and Combat. Nineteen perks across five tiers unlock at levels 1, 15, 30, 45 and 60: extra mana orbs, cheaper spells, a longer Dragon's Breath, a wider Growth that can also water, a longer Sacred Light that speeds you up, waking with full mana, refund chances, double XP, and essence from casting. Existing saves simply start at level 1. One caveat: a save that has earned Magic XP keeps a Magic entry, so test on a throwaway save before removing this mod from a leveled playthrough."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

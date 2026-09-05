@@ -18,6 +18,7 @@ from ..patcher import Markers
 SLUG = "big_rock_credit"
 NAME = "Big Rock Credit"
 SUMMARY = "Large rocks and boulders count toward the mine ladder, weighted by their size."
+DETAILS = """Large rocks and boulders in the Mines count toward revealing the ladder, weighted by their size - a large rock is worth 4 and a boulder 9. In the unmodded game they are worth nothing, so the most expensive objects on the floor moved the ladder not at all and clearing one actively cost you progress. Toggle under Settings > Accessibility."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

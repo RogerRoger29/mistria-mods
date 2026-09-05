@@ -32,6 +32,7 @@ from ..patcher import Markers
 SLUG = "uncaught_sparkles"
 NAME = "Uncaught Sparkles"
 SUMMARY = "Insects the museum still needs carry a white twinkle, readable without colour vision."
+DETAILS = """Every insect whose species is not yet on display in the museum's Insect wing carries a looping white twinkle, so you can tell it apart by brightness and motion alone - built for players with little or no colour vision. It tracks what is actually donated, not what you have caught, so a species you have caught but not handed in keeps sparkling until it is on display. The twinkles are the game's own unused star effects. Toggle under Settings > Accessibility; a command-line option raises the twinkle if it sits too low on a species."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

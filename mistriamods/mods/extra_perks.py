@@ -19,6 +19,7 @@ from ..patcher import Markers
 SLUG = "extra_perks"
 NAME = "Extra Perks"
 SUMMARY = "Three new skill perks: Pathfinder, Curator's Eye and Well Spring."
+DETAILS = """Three new buyable perks filling gaps the game's own trees leave open. Pathfinder (Combat, tier 5, 200 essence): monsters defeated in the Mines count double toward revealing the ladder. Curator's Eye (Archaeology, tier 5, 200 essence): museum donations grant 50 percent more Renown. Well Spring (Farming, tier 5, 205 essence): Water Sprite Statues reach one tile further in every direction. Icons are borrowed from existing perks, since new art cannot be added to the game's atlases."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

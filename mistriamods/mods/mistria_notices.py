@@ -5,6 +5,8 @@ from ..patcher import Markers
 SLUG = "mistria_notices"
 NAME = "Mistria Notices You"
 SUMMARY = "Seven letters from villagers, delivered as your play-stats cross milestones."
+DETAILS = """Seven new letters arrive by mail when your play crosses a milestone: Valen after your first faint, Terithia at 100 fish, Reina at 30 dishes cooked, Hayden at 100 crops, Juniper at 50 bugs, March at 50 monsters, and Adeline at 50,000 gold earned. Each was written in that character's own voice, from their existing letters. It changes no code at all, only the letters data. One caveat: delivered letters are referenced by name in your save, so removing this mod mid-playthrough makes the game log a missing-letter error rather than being perfectly clean."""
+DOC = "mistria-notices-you.md"
 LEGACY = ["MISTRIA_NOTICES"]
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block

@@ -5,6 +5,7 @@ from ..patcher import Markers
 SLUG = "ladder_progress"
 NAME = "Ladder Progress"
 SUMMARY = "A mine HUD readout of how close the floor is to revealing its ladder."
+DETAILS = """A small readout on the mine HUD showing your progress toward revealing the floor's ladder, as a number like 7 / 14. The game hides this: the ladder only appears after you have cleared a random 25 to 75 percent of the floor, rerolled every floor, so without a readout there is no way to tell an unlucky floor from one you have barely started. Monsters count the same as rocks and cost no stamina, so the readout will often tell you to go fight something. Toggle under Settings > Accessibility; the position can be moved from the command line."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block
