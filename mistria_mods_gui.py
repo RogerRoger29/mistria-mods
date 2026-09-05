@@ -606,7 +606,53 @@ class App(tk.Tk):
         self.run("Verifying", fn)
 
 
+def headless_update():
+    """`MistriaMods.exe --update`: check, download, swap - no window.
+
+    Logs to MistriaMods-update.log beside the exe, since a windowed build
+    has no console. Exit code 0 on success or when already current, 1 on
+    an error, 2 on an incomplete download.
+    """
+    exe = os.path.abspath(sys.executable if FROZEN else __file__)
+    log_path = os.path.join(os.path.dirname(exe), "MistriaMods-update.log")
+
+    def log(msg):
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(msg + "\n")
+
+    try:
+        log("Mistria Mods v%s: checking %s" % (VERSION, RELEASES_API))
+        info = latest_release()
+        if version_tuple(info["tag"]) <= version_tuple(VERSION):
+            log("Up to date (latest is %s)." % info["tag"])
+            return 0
+        if not (FROZEN and info["url"]):
+            log("Newer release %s at %s - not a frozen build, nothing to swap."
+                % (info["tag"], info["page"]))
+            return 0
+        new_path = os.path.join(os.path.dirname(exe), EXE_ASSET + ".new")
+        log("Downloading %s (%d bytes)" % (info["url"], info["size"]))
+        download(info["url"], new_path)
+        got = os.path.getsize(new_path)
+        if info["size"] and got != info["size"]:
+            os.remove(new_path)
+            log("Incomplete download: %d of %d bytes." % (got, info["size"]))
+            return 2
+        swap_executable(new_path, exe)
+        log("Installed %s over %s; the previous version is kept as .old."
+            % (info["tag"], os.path.basename(exe)))
+        return 0
+    except Exception as e:
+        log("ERROR: %r" % (e,))
+        return 1
+
+
 def main():
+    if "--version" in sys.argv:
+        print("Mistria Mods v" + VERSION)
+        return
+    if "--update" in sys.argv:
+        sys.exit(headless_update())
     App().mainloop()
 
 

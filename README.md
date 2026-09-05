@@ -60,6 +60,10 @@ any newer version in a banner: **Download & install** fetches the new
 mods ship the same way, so updating the app is how you get them. "Check for
 updates" in the footer does the same on demand. From source, `git pull`.
 
+For scripts, `MistriaMods.exe --update` does the whole thing without a
+window and writes what happened to `MistriaMods-update.log` beside the exe;
+`--version` prints the version.
+
 ## The mods
 
 | Mod | What it does | In-game control |
