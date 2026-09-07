@@ -25,6 +25,7 @@ from .mods import (
     magic_skill,
     uncaught_sparkles,
     uncaught_flora,
+    shovel_sense,
 )
 
 MODS = [
@@ -44,6 +45,7 @@ MODS = [
     magic_skill,
     uncaught_sparkles,
     uncaught_flora,
+    shovel_sense,
 ]
 
 def looks_like_game(path):
