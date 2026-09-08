@@ -143,8 +143,7 @@ function open_field_notes(wing, icon, title) {
     }
     self.right_pilot.reset();
 
-    var header = self.item_scroller.new_element();
-    self.item_scroller.add_height_to_element(header, 23);
+    var header = self.item_scroller.new_element(23);
     var icon_node = ANCHOR.sprite(header)
         .set_sprite(icon)
         .set_xy(5, 9)
@@ -171,18 +170,16 @@ function open_field_notes(wing, icon, title) {
             continue;
         }
 
-        var head = self.item_scroller.new_element();
-        self.item_scroller.add_height_to_element(head, 15);
+        var head = self.item_scroller.new_element(16);
         ANCHOR.text(head)
             .set_lut(COMMON_LUT)
             .set_key(set.display_name)
-            .set_xy(5, 3)
+            .set_xy(5, 4)
 
         for (var k = 0; k < array_length(missing); k++) {
             var item_id = missing[k];
-            var row = self.item_scroller.new_element()
+            var row = self.item_scroller.new_element(27)
                 .add_to_pilot(self.right_pilot);
-            self.item_scroller.add_height_to_element(row, 27);
 
             var square = common_slice(row, 24, 24)
                 .set_xy(3, 1);
@@ -197,18 +194,26 @@ function open_field_notes(wing, icon, title) {
                 .set_key(ITEM_PROTOTYPES[item_id].name_key)
                 .set_xy(31, 2)
 
-            ANCHOR.text(row)
+            //
+            // The hint wraps at the page's width; a two-line hint grows its
+            // row, and everything below it shifts down.
+            //
+            var hint = ANCHOR.text(row)
                 .set_lut(COMMON_LUT)
+                .set_max_width(138)
                 .set_text(field_notes_hint(wing, order[i], item_id))
-                .set_xy(31, 14)
+                .set_xy(31, 13)
+            var overflow = 13 + hint.measure().y + 2 - 27;
+            if overflow > 0 {
+                self.item_scroller.add_height_to_element(row, overflow);
+            }
 
             listed += 1;
         }
     }
 
     if listed == 0 {
-        var done = self.item_scroller.new_element();
-        self.item_scroller.add_height_to_element(done, 23);
+        var done = self.item_scroller.new_element(23);
         ANCHOR.text(done)
             .set_lut(COMMON_LUT)
             .set_key("misc_local/field_notes_complete")
@@ -305,6 +310,33 @@ function field_notes_rarity_word(rarity) {
     }
 }
 
+//
+// What the museum's set name already says, so the hint need not repeat
+// it: "fall_pond" is the season and the water, "summer" is the season.
+//
+function field_notes_set_season(set_key) {
+    static SEASONS = ["spring", "summer", "fall", "winter"];
+    for (var i = 0; i < array_length(SEASONS); i++) {
+        if set_key == SEASONS[i] || string_pos(SEASONS[i] + "_", set_key) == 1 {
+            return SEASONS[i];
+        }
+    }
+    return undefined;
+}
+
+function field_notes_set_water(set_key) {
+    static WATERS = ["river", "pond", "ocean"];
+    for (var i = 0; i < array_length(WATERS); i++) {
+        var w = WATERS[i];
+        if string_length(set_key) > string_length(w)
+            && string_copy(set_key, string_length(set_key) - string_length(w), string_length(w) + 1) == "_" + w
+        {
+            return w;
+        }
+    }
+    return undefined;
+}
+
 function field_notes_artifact_hint(set_key, item_id) {
     var f = fiddle_get("artifacts");
     var name = item_id_to_string(item_id);
@@ -356,29 +388,37 @@ function field_notes_fish_hint(set_key, item_id) {
     var in_mines = retrieval == "mines" || (is_array(retrieval) && array_contains(retrieval, "mines"));
     var dive_only = retrieval == "divespot" || (is_array(retrieval) && array_length(retrieval) == 1 && retrieval[0] == "divespot");
     var trap = retrieval == "fish_trap";
+    var set_season = field_notes_set_season(set_key);
+    var set_water = field_notes_set_water(set_key);
 
-    if !in_mines && !trap {
+    if !in_mines && !trap && set_season == undefined && set_key != "multi_season_fish" {
         array_push(parts, field_notes_seasons(raw[$ "seasons"]));
     }
 
     if in_mines {
-        array_push(parts, field_notes_mine_word(set_key) ?? field_notes_word("any_mine_floor"));
+        if field_notes_mine_word(set_key) == undefined {
+            array_push(parts, field_notes_word("any_mine_floor"));
+        }
     } else if trap {
-        array_push(parts, field_notes_word("fish_trap"));
+        if set_key != "fish_trap" {
+            array_push(parts, field_notes_word("fish_trap"));
+        }
     } else {
         var locs = raw[$ "locations"];
-        if is_array(locs) && array_length(locs) > 0 {
+        if is_array(locs) && array_length(locs) > 0 && set_key != locs[0] {
             array_push(parts, local_get("locations/" + locs[0] + "/name"));
         }
         var water = raw[$ "water_type"];
-        if is_string(water) {
-            array_push(parts, field_notes_word(water));
-        } else if is_array(water) {
-            var w = "";
-            for (var i = 0; i < array_length(water); i++) {
-                w += (i > 0 ? "/" : "") + field_notes_word(water[i]);
+        if set_water == undefined {
+            if is_string(water) {
+                array_push(parts, field_notes_word(water));
+            } else if is_array(water) {
+                var w = "";
+                for (var i = 0; i < array_length(water); i++) {
+                    w += (i > 0 ? "/" : "") + field_notes_word(water[i]);
+                }
+                array_push(parts, w);
             }
-            array_push(parts, w);
         }
         if dive_only {
             array_push(parts, field_notes_word("dive_spot"));
@@ -389,11 +429,14 @@ function field_notes_fish_hint(set_key, item_id) {
     if is_array(weather) && array_length(weather) > 0 && !array_contains(weather, "calm") {
         array_push(parts, field_notes_word("rain"));
     }
-    if raw[$ "bait_only"] == true {
+    if raw[$ "bait_only"] == true && set_key != "fish_bait" {
         array_push(parts, field_notes_word("needs_bait"));
     }
-    if raw[$ "legendary"] == true {
+    if raw[$ "legendary"] == true && set_key != "legendary" {
         array_push(parts, field_notes_word("legendary"));
+    }
+    if array_length(parts) == 0 {
+        array_push(parts, field_notes_word("any_weather"));
     }
     return field_notes_join(parts);
 }
@@ -412,13 +455,19 @@ function field_notes_insect_hint(set_key, item_id) {
     var def = bugs[$ "default"];
     var parts = [];
 
-    array_push(parts, field_notes_seasons(raw[$ "seasons"] ?? def.seasons));
+    if field_notes_set_season(set_key) == undefined && set_key != "multi_season" {
+        array_push(parts, field_notes_seasons(raw[$ "seasons"] ?? def.seasons));
+    }
 
     var tag = raw[$ "tag"] ?? def.tag;
     if !is_array(tag) {
         tag = [tag];
     }
-    if array_contains(tag, "mines") {
+    var place_in_set = set_key == "beach" || set_key == "deep_woods" || set_key == "grass"
+        || field_notes_mine_word(set_key) != undefined;
+    if place_in_set {
+        // the set name says where
+    } else if array_contains(tag, "mines") {
         array_push(parts, field_notes_biome_word(raw[$ "dungeon_biome"]) ?? field_notes_word("any_mine_floor"));
     } else if array_contains(tag, "beach") && array_length(tag) == 1 {
         array_push(parts, field_notes_word("beach"));
@@ -460,8 +509,13 @@ function field_notes_insect_hint(set_key, item_id) {
         array_push(parts, field_notes_word("pheromones_only"));
     }
     var rarity = raw[$ "rarity"] ?? def.rarity;
-    if rarity == "rare" || rarity == "very_rare" || rarity == "legendary" {
+    if (rarity == "rare" || rarity == "very_rare" || rarity == "legendary")
+        && set_key != "rare" && set_key != "legendary"
+    {
         array_push(parts, field_notes_rarity_word(rarity));
+    }
+    if array_length(parts) == 0 {
+        array_push(parts, field_notes_word("any_time"));
     }
     return field_notes_join(parts);
 }
@@ -487,18 +541,16 @@ function field_notes_forage_rarity(season, name) {
 
 function field_notes_flora_hint(set_key, item_id) {
     var name = item_id_to_string(item_id);
-    var mine = field_notes_mine_word(set_key);
-    if mine != undefined {
-        return field_notes_join([mine, field_notes_word("forage")]);
+    if field_notes_mine_word(set_key) != undefined || set_key == "deep_woods" {
+        return field_notes_word("forage");
     }
-    switch set_key {
-        case "deep_woods": return field_notes_join([field_notes_word("deep_woods"), field_notes_word("forage")]);
-        case "void": return field_notes_word("void_sight");
-        default: break;
+    if set_key == "void" {
+        return field_notes_word("void_sight");
     }
 
     //
     // The seasonal sets: "<season>_crops", "<season>_flowers", "<season>_forage".
+    // The set name carries the season, so the hint says only how.
     //
     var underscore = string_pos("_", set_key);
     if underscore == 0 {
@@ -506,24 +558,23 @@ function field_notes_flora_hint(set_key, item_id) {
     }
     var season = string_copy(set_key, 1, underscore - 1);
     var kind = string_delete(set_key, 1, underscore);
-    var season_word = field_notes_season_word(season);
 
     if kind == "crops" {
-        return field_notes_join([season_word, field_notes_word("crop"), field_notes_word("store_seeds")]);
+        return field_notes_word("store_seeds");
     }
 
     var sand = fiddle_get("forageables")[$ "sand_forageables"];
     if is_array(sand) && array_contains(sand, name) {
-        return field_notes_join([season_word, field_notes_word("beach"), field_notes_word("forage")]);
+        return field_notes_join([field_notes_word("beach"), field_notes_word("forage")]);
     }
     var rarity = field_notes_forage_rarity(season, name);
     if rarity != undefined {
-        return field_notes_join([season_word, field_notes_word("forage"), field_notes_rarity_word(rarity)]);
+        return field_notes_join([field_notes_word("forage"), field_notes_rarity_word(rarity)]);
     }
     if kind == "flowers" {
-        return field_notes_join([season_word, field_notes_word("store_seeds")]);
+        return field_notes_word("store_seeds");
     }
-    return field_notes_join([season_word, field_notes_word("forage")]);
+    return field_notes_word("forage");
 }
 
 function field_notes_hint(wing, set_key, item_id) {
@@ -545,6 +596,8 @@ field_notes_flora = "Notes: Flora"
 field_notes_insect = "Notes: Insects"
 field_notes_complete = "Nothing left to find here."
 fn_any_season = "Any season"
+fn_any_weather = "Any weather"
+fn_any_time = "Any time of day"
 fn_day = "Day"
 fn_night = "Night"
 fn_rain = "Rain"
@@ -577,9 +630,8 @@ fn_in_grass = "In tall grass"
 fn_pheromones_only = "Pheromones only"
 fn_beehives = "Beehives"
 fn_crafted = "Crafted"
-fn_crop = "crop"
 fn_store_seeds = "Seeds at the store"
-fn_forage = "forage"
+fn_forage = "Forage"
 fn_void_sight = "Needs Void Sight"
 fn_fishing = "Fishing"
 fn_well_placed = "Well Placed perk"

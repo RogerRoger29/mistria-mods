@@ -51,6 +51,7 @@ SPELLS_TOML = "assets/fiddle/spells.toml"
 SPELLS_GML = "assets/gml/scripts/Spells.gml"
 ARI = "assets/gml/scripts/GameplaySystems/Player/Ari.gml"
 NEWDAY = "assets/gml/scripts/GameplaySystems/Cycle/NewDay.gml"
+LOADGAME = "assets/gml/scripts/GameplaySystems/Cycle/LoadGame.gml"
 LOCAL = "assets/fiddle/misc_local.toml"
 
 # --- the spell ---------------------------------------------------------------
@@ -125,7 +126,7 @@ function homeward_cast() {
 // looked up by name at run time, so this never names Skill.Magic and is
 // safe with or without that mod.
 //
-function homeward_try_learn() {
+function homeward_try_learn(quiet = false) {
     if ARI.spells_learned[Spell.Homeward] {
         return;
     }
@@ -138,10 +139,20 @@ function homeward_try_learn() {
     }
     if ready {
         ARI.learn_spell(Spell.Homeward);
-        create_notification("misc_local/homeward_learned");
+        if !quiet {
+            create_notification("misc_local/homeward_learned");
+        }
     }
 }
 """
+
+# --- LoadGame.gml: a save that already qualifies gets it at load ------------
+#
+# Right after the learned spells (and, earlier, the skill XP) are read back.
+# Quietly: the toast menu does not exist yet at this point.
+
+LOAD_ANCHOR = ("    ARI.set_pinned_spell(opt_and_then(files.player.pinned_spell, "
+               "string_to_spell));\n")
 
 # --- Ari.gml: after any spell is learned ------------------------------------
 
@@ -173,5 +184,6 @@ def patches(mk, opt):
         ],
         ARI: [(LEARN_ANCHOR, LEARN_ANCHOR + mk.block("homeward_try_learn();", " " * 8))],
         NEWDAY: [(WAKE_ANCHOR, WAKE_ANCHOR + mk.block("homeward_try_learn();", " " * 4))],
+        LOADGAME: [(LOAD_ANCHOR, LOAD_ANCHOR + mk.block("homeward_try_learn(true);", " " * 4))],
         LOCAL: [(mk.APPEND, mk.block(LABELS, toml=True))],
     }

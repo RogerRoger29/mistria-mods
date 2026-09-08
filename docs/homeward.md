@@ -35,7 +35,9 @@ python mistria-mods/install.py apply homeward --cost 12 --level 30
   cutscene, while the day is ending, and when Ari is already home; the
   vanilla gate above it already refuses casting while mounted or holding an
   animal, and while mana is short.
-- **Learning.** The check runs after any spell is learned and each morning.
+- **Learning.** The check runs after any spell is learned, each morning, and
+  once when a save loads (quietly there, since the toast menu does not exist
+  yet), so a save that already qualifies has the spell the moment it opens.
   It looks the Magic skill up *by name* at run time, so the code never names
   `Skill.Magic` and is safe whether or not Magic Skill is installed: found,
   it compares `skill_xp_to_level` against the level option; not found, it

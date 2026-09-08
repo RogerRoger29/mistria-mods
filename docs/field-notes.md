@@ -8,11 +8,18 @@ groups it, with a line under every name saying where and when it turns up:
 
 ```
 Notes: Fish                         Fall Pond Fish Set
-  [icon] Bluefish                     Fall - Pond - Rain
-  [lock] White Perch                  Fall - Pond
-                                    Deep Earth Fish Set
-  [lock] Emerald Horned Charger       Mines 41-60
+  [icon] Bluefish                     Rain
+  [lock] White Perch                  Any weather
+                                    Multi-Season Fish Set
+  [lock] Koi                          Pond
+                                    Legendary Fish Set
+  [lock] Shimmering Salmon            Spring - River - Rain
 ```
+
+The hint says only what the set's own name does not: under "Fall Pond
+Fish Set" the season and the water go without saying, so the line is the
+weather; under "Multi-Season" it is the water; under "Legendary" it is
+everything. A line too long for the page wraps, and its row grows.
 
 Items you have never held show the lock icon, as the Almanac's own pages do;
 the name shows regardless, since the point is to go and find it. There is no
