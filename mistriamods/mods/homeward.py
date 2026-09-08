@@ -58,17 +58,17 @@ LOCAL = "assets/fiddle/misc_local.toml"
 #
 # Appended at the end of spells.toml so the existing Spell indices hold; the
 # learned-spell list in saves is keyed by name, so position never matters on
-# disk. Every sprite here already ships: the list icon is a plain sprite the
-# button loader accepts as-is, the card icon is the woodcrafting menu's
-# home-essentials glyph, and the ribbon is Full Restore's.
+# disk. Every sprite here already ships: the list icon is the farmhouse from
+# the map screen's tabs (a plain sprite the button loader accepts as-is),
+# the card icon is the store's little house, and the ribbon is Full Restore's.
 
 SPELL_DEF = '''[homeward]
 	name = "Homeward"
 	description = "Carries you home to your own doorstep from wherever you stand. The day goes on."
 	type = "Utility"
 	cost = @COST@
-	icon_key = "spr_ui_hud_map_icon"
-	upper_icon = "spr_ui_item_furniture_basic_doormat_v1"
+	icon_key = "spr_ui_map_tab_icon_farm"
+	upper_icon = "spr_ui_store_category_icon_buildings"
 	ribbon = "spr_ui_journal_magic_card_ribbon_restore"'''
 
 # --- Spells.gml: the gate and the cast ----------------------------------------

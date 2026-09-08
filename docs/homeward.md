@@ -42,10 +42,12 @@ python mistria-mods/install.py apply homeward --cost 12 --level 30
   `Skill.Magic` and is safe whether or not Magic Skill is installed: found,
   it compares `skill_xp_to_level` against the level option; not found, it
   waits for the first spell.
-- **Art.** The list icon is the HUD's map glyph, which the button-sprite
-  loader accepts as a plain sprite (it falls back to the bare name when a
-  family has no `_main` variant); the card icon is the basic doormat; the
-  ribbon is Full Restore's.
+- **Art.** The list icon is the farmhouse from the map screen's tabs, which
+  the button-sprite loader accepts as a plain sprite (it falls back to the
+  bare name when a family has no `_main` variant); the card icon is the
+  store's "buildings" house; the ribbon is Full Restore's. An earlier build
+  used the HUD's map glyph, which sat confusingly next to the journal's map
+  tab.
 
 ## Playing with the other mods
 
