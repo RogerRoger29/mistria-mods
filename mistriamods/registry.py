@@ -27,6 +27,7 @@ from .mods import (
     uncaught_flora,
     shovel_sense,
     homeward,
+    field_notes,
 )
 
 MODS = [
@@ -48,6 +49,7 @@ MODS = [
     uncaught_flora,
     shovel_sense,
     homeward,
+    field_notes,
 ]
 
 def looks_like_game(path):

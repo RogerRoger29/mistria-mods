@@ -5,13 +5,13 @@
 <h1 align="center">Mistria Mods</h1>
 
 <p align="center">
-  Eighteen quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
+  Nineteen quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
   A tenth skill and a sixth spell, a chest you can open from anywhere, sparkles on the museum's missing insects, dig sites that give themselves away, and more.
 </p>
 
 <p align="center">
   <img alt="Game 1.0.4" src="https://img.shields.io/badge/Fields%20of%20Mistria-1.0.4-6d4fc2">
-  <img alt="Mods" src="https://img.shields.io/badge/mods-18-4a3391">
+  <img alt="Mods" src="https://img.shields.io/badge/mods-19-4a3391">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2f9e5c">
   <img alt="MOMI compatible" src="https://img.shields.io/badge/MOMI-compatible-7b7391">
 </p>
@@ -76,6 +76,7 @@ the version. From source, `git pull`.
 | **Crop Labels** | Hold a key to see what a plant is and how long until harvest | `F`, rebindable |
 | **Uncaught Sparkles** | Insects the museum's Insect wing still lacks carry a white twinkle — readable with no colour vision at all | Accessibility toggle |
 | **Uncaught Flora** | The same twinkle on wild forage, bushes and fruit trees the Flora wing still needs | Accessibility toggle |
+| **Field Notes** | Four Almanac pages listing what the museum still lacks, each item with where and when to find it | Journal > Almanac |
 | **Shovel Sense** | Hold the shovel and nearby dig sites puff loose earth; Ari notices the first one that comes close, with a thought bubble, a chime and a rumble | Accessibility toggle |
 | **Ladder Progress** | Mine HUD showing how close the floor is to revealing its ladder | Accessibility toggle |
 | **Vein Tools** | Water a whole crop patch, or mine a whole vein of rock, in one swing; reach scales with tool tier | Four Accessibility toggles |
@@ -145,7 +146,7 @@ everything else.
   are referenced by key, so removing it mid-playthrough makes the game log a
   missing-letter error. *Magic Skill*: a save that has earned Magic XP keeps a
   `magic` entry; test on a throwaway save before removing it from a leveled
-  playthrough. *Homeward*: a save that learned it keeps a `homeward` entry in its spell list, same advice. The other fifteen leave no trace at all.
+  playthrough. *Homeward*: a save that learned it keeps a `homeward` entry in its spell list, same advice. The other sixteen leave no trace at all.
 
 ## Layout
 

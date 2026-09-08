@@ -76,7 +76,7 @@ def verify_mod(archive, mod):
 
         # Expected blocks: judged on the stripped text so the right anchor
         # alternative is chosen, then blocks-per-site times sites.
-        stripped = mod.markers.strip(text, toml=toml)
+        stripped = patcher.strip_file(mod, name, text, edits)
         want = 0
         for edit in edits:
             chosen = patcher.resolve_edit(stripped, edit)

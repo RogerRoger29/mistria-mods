@@ -49,6 +49,21 @@ class Markers(object):
             + re.escape(self.tend) + r"[ \t]*\n?",
             re.DOTALL,
         )
+        # A TOML block inserted after an anchor line (inside an array, say)
+        # sits on lines of its own, exactly like a GML block: it must not
+        # reclaim the newline that ends the line above it.
+        self.toml_inline_re = re.compile(
+            r"[ \t]*" + re.escape(self.tbegin) + r".*?"
+            + re.escape(self.tend) + r"[ \t]*\n?",
+            re.DOTALL,
+        )
+        # The appended block, when a file also carries inline ones: it is the
+        # last thing in the file.
+        self.toml_tail_re = re.compile(
+            r"\n?[ \t]*" + re.escape(self.tbegin) + r".*?"
+            + re.escape(self.tend) + r"[ \t]*\n?\Z",
+            re.DOTALL,
+        )
 
         # Blocks shipped under an older marker name, so upgrades strip cleanly.
         self.legacy_res = []
@@ -67,12 +82,24 @@ class Markers(object):
         lines.append(indent + e)
         return "\n".join(lines) + "\n"
 
-    def strip(self, text, toml=False):
-        out = (self.toml_re if toml else self.gml_re).sub("", text)
+    def strip(self, text, toml=False, mode="append"):
+        """Remove this mod's blocks.
+
+        For TOML the caller says how the blocks got there - strip_file()
+        works it out from the mod's edits: "append" (every block was appended,
+        each owning the newline before it), "inline" (every block was
+        inserted after an anchor line), or "mixed".
+        """
         if not toml:
+            out = self.gml_re.sub("", text)
             for r in self.legacy_res:
                 out = r.sub("", out)
-        return out
+            return out
+        if mode == "append":
+            return self.toml_re.sub("", text)
+        if mode == "mixed":
+            text = self.toml_tail_re.sub("", text)
+        return self.toml_inline_re.sub("", text)
 
     def present_in(self, text, toml=False):
         return (self.tbegin if toml else self.begin) in text
@@ -137,8 +164,7 @@ def check_mod(archive, mod, opt=None):
         if name not in archive.files:
             report.append((name, False, "not in assets.zip"))
             continue
-        toml = name.endswith(".toml")
-        text = mod.markers.strip(archive.read(name), toml=toml)
+        text = strip_file(mod, name, archive.read(name), edits)
         problems = []
         for edit in edits:
             if resolve_edit(text, edit) is None:
@@ -237,9 +263,9 @@ def ensure_backup(archive, backup_path, mods):
         for name in mod_files(mod):
             if name not in clean:
                 continue
-            toml = name.endswith(".toml")
             text = clean[name].decode("utf-8")
-            clean[name] = mod.markers.strip(text, toml=toml).encode("utf-8")
+            edits = mod_edits(mod, mod.defaults())[name]
+            clean[name] = strip_file(mod, name, text, edits).encode("utf-8")
 
     tmp = backup_path + ".tmp"
     try:
@@ -348,13 +374,31 @@ def mod_files(mod):
     return list(mod_edits(mod, mod.defaults()).keys())
 
 
+def strip_mode(edits):
+    """How a file's TOML blocks were placed: "append", "inline" or "mixed"."""
+    appended = set()
+    for edit in edits:
+        for anchor, _, _ in edit_candidates(edit):
+            appended.add(anchor == Markers.APPEND)
+    if appended == {True} or not appended:
+        return "append"
+    if appended == {False}:
+        return "inline"
+    return "mixed"
+
+
+def strip_file(mod, name, text, edits):
+    """The file's text with this mod's blocks removed, byte-exactly."""
+    toml = name.endswith(".toml")
+    return mod.markers.strip(text, toml=toml, mode=strip_mode(edits) if toml else "append")
+
+
 def strip_mod(archive, mod):
     """Remove a mod's blocks. Returns the paths that actually changed."""
     touched = []
-    for name in mod_files(mod):
-        toml = name.endswith(".toml")
+    for name, edits in mod_edits(mod, mod.defaults()).items():
         text = archive.read(name)
-        cleaned = mod.markers.strip(text, toml=toml)
+        cleaned = strip_file(mod, name, text, edits)
         if cleaned != text:
             touched.append(name)
         archive.write(name, cleaned)
