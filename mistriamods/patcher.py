@@ -286,8 +286,9 @@ TRANSLATION_FILES = (
     + ["assets/localization/source_caches/%s.meta.toml" % l for l in LANGUAGES]
 )
 
-# The fields of a table (a perk, a letter) that carry player-visible text.
-LOCALIZED_FIELDS = ("name", "description", "subject_line", "local")
+# The fields of a table (a perk, a letter, a spell) that carry player-visible
+# text. A spell's `type` is a localized label too ("Farming", "Utility").
+LOCALIZED_FIELDS = ("name", "description", "subject_line", "local", "type")
 
 
 def toml_string(value):

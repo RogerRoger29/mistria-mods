@@ -5,13 +5,13 @@
 <h1 align="center">Mistria Mods</h1>
 
 <p align="center">
-  Seventeen quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
-  A tenth skill, a chest you can open from anywhere, sparkles on the museum's missing insects, dig sites that give themselves away, and more.
+  Eighteen quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
+  A tenth skill and a sixth spell, a chest you can open from anywhere, sparkles on the museum's missing insects, dig sites that give themselves away, and more.
 </p>
 
 <p align="center">
   <img alt="Game 1.0.4" src="https://img.shields.io/badge/Fields%20of%20Mistria-1.0.4-6d4fc2">
-  <img alt="Mods" src="https://img.shields.io/badge/mods-17-4a3391">
+  <img alt="Mods" src="https://img.shields.io/badge/mods-18-4a3391">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2f9e5c">
   <img alt="MOMI compatible" src="https://img.shields.io/badge/MOMI-compatible-7b7391">
 </p>
@@ -70,6 +70,7 @@ the version. From source, `git pull`.
 | Mod | What it does | In-game control |
 | --- | --- | --- |
 | **Magic Skill** | A tenth skill. Casting spells earns XP; a five-tier, 19-perk Magic tree on Seridia's shrine — extra mana orbs, cheaper spells, longer Dragon's Breath, a wider Growth, mana that refills on waking, and more | Seridia's shrine, like any skill |
+| **Homeward** | A sixth spell: cast it anywhere and Ari is carried to her own doorstep; the day goes on. Learned at Magic level 20, or with your first spell without Magic Skill | Spell menu, pinnable |
 | **Storage Anywhere** | A list of every chest in the world; open any of them from where you stand. Pin your favourites to the top | `B` to open, `P` to pin — rebindable |
 | **Daily Checklist** | Hold a key for today's outstanding tasks and what's coming this season | `V`, rebindable |
 | **Crop Labels** | Hold a key to see what a plant is and how long until harvest | `F`, rebindable |
@@ -140,11 +141,11 @@ everything else.
 - **Game version.** Anchors are exact text matches against the game's source,
   tested on **1.0.4**. A game update can invalidate some; `Check` tells you
   exactly which, and nothing is written until every anchor matches.
-- **Two mods leave a trace in saves.** *Mistria Notices You*: delivered letters
+- **Three mods leave a trace in saves.** *Mistria Notices You*: delivered letters
   are referenced by key, so removing it mid-playthrough makes the game log a
   missing-letter error. *Magic Skill*: a save that has earned Magic XP keeps a
   `magic` entry; test on a throwaway save before removing it from a leveled
-  playthrough. The other fifteen leave no trace at all.
+  playthrough. *Homeward*: a save that learned it keeps a `homeward` entry in its spell list, same advice. The other fifteen leave no trace at all.
 
 ## Layout
 
