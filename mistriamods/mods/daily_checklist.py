@@ -13,7 +13,7 @@ from ..patcher import Markers
 SLUG = "daily_checklist"
 NAME = "Daily Checklist"
 SUMMARY = "Hold V for today's unwatered crops, ungreeted villagers, gifts, birthdays and festivals."
-DETAILS = """Hold V for a panel of what is left today and what is coming up: crops that still need watering, villagers you have not greeted, gifts you can still give, the next birthday and the next festival. It only counts villagers you have actually met, so it never hints at someone you have not been introduced to. The key is a real control called Show Checklist and can be rebound under Settings > Controls."""
+DETAILS = """Hold V for a panel of what is left today and what is coming up: crops that still need watering, villagers you have not greeted, gifts you can still give, and once you keep animals, how many are still unfed, unpetted, or (from five o'clock) still outside, then the next birthday and the next festival. It only counts villagers you have actually met, so it never hints at someone you have not been introduced to. The key is a real control called Show Checklist and can be rebound under Settings > Controls."""
 LEGACY = []
 markers = Markers(SLUG, legacy=LEGACY)
 block = markers.block
@@ -188,6 +188,35 @@ function checklist_build() {
     out += "\\n" + string(to_greet) + " " + local_get("misc_local/checklist_greet");
     out += "\\n" + string(to_gift) + " " + local_get("misc_local/checklist_gift");
 
+    //
+    // The animals, once there are any. The same three things the nightly
+    // check in Stable.gml judges them on: fed, petted, and home. "Outside"
+    // only matters toward evening, so it appears from five o'clock.
+    //
+    var animals = get_all_animals();
+    if animals.count() > 0 {
+        var not_fed = 0;
+        var not_pet = 0;
+        var outside = 0;
+        for (var i = 0; i < animals.count(); i++) {
+            var animal = animals.get(i);
+            if !animal.has_eaten {
+                not_fed += 1;
+            }
+            if !animal.has_been_pat {
+                not_pet += 1;
+            }
+            if !animal.is_home() {
+                outside += 1;
+            }
+        }
+        out += "\\n" + string(not_fed) + " " + local_get("misc_local/checklist_unfed");
+        out += "\\n" + string(not_pet) + " " + local_get("misc_local/checklist_unpet");
+        if CLOCK.time >= hours(17) {
+            out += "\\n" + string(outside) + " " + local_get("misc_local/checklist_outside");
+        }
+    }
+
     out += "\\n\\n" + local_get("misc_local/checklist_ahead");
     if next_birthday != undefined {
         out += "\\n" + local_get("misc_local/checklist_birthday") + " "
@@ -233,6 +262,9 @@ checklist_today = "TODAY"
 checklist_dry = "crops need water"
 checklist_greet = "villagers not greeted"
 checklist_gift = "gifts still available"
+checklist_unfed = "animals not fed"
+checklist_unpet = "animals not petted"
+checklist_outside = "animals still outside"
 checklist_ahead = "COMING UP"
 checklist_birthday = "Birthday:"
 checklist_festival = "Festival:"

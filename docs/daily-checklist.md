@@ -42,6 +42,8 @@ crops are dry means walking your whole farm.
 | Crops needing water | The farm grid, counting planted cells that aren't watered |
 | Villagers not greeted | `times_spoken_today == 0`, for villagers you've met |
 | Gifts still available | `gift_flag`, for villagers you've met |
+| Animals not fed / not petted | `has_eaten` and `has_been_pat` on each of your animals, the flags the nightly check in `Stable.gml` judges them on; the lines appear once you own any animal |
+| Animals still outside | `is_home()` per animal, shown from five o'clock, since being out overnight is what costs hearts |
 | Next birthday | Each villager's `prototype.birthday`, this season only |
 | Next festival | `FESTIVALS`, skipping any not marked `implemented` |
 

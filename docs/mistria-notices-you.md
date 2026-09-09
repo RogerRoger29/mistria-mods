@@ -9,7 +9,7 @@ Adeline explains, in her way, what that money did for the town.
 Letters arrive in your mailbox the morning after you cross the line, like any
 other mail.
 
-## The seven letters
+## The nine letters
 
 | Sender | Arrives when | Why them |
 | --- | --- | --- |
@@ -20,6 +20,8 @@ other mail.
 | **Juniper** | 50 bugs caught | She wants specimens for potions |
 | **March** | 50 monsters defeated | The blacksmith, on the state of your blade |
 | **Adeline** | 50,000 gold earned | She keeps the town's ledgers |
+| **Landen** | the Carpenter's Shop is open, it is Spring 8 or later, and you own neither a coop nor a barn | The shop stocks both, and nothing in the game says so |
+| **Hayden** | you own a coop or a barn but no animal | Sweetwater Farm sells them |
 
 ## Install / uninstall
 

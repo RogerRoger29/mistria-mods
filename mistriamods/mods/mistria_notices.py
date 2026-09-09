@@ -4,8 +4,8 @@ from ..patcher import Markers
 
 SLUG = "mistria_notices"
 NAME = "Mistria Notices You"
-SUMMARY = "Seven letters from villagers, delivered as your play-stats cross milestones."
-DETAILS = """Seven new letters arrive by mail when your play crosses a milestone: Valen after your first faint, Terithia at 100 fish, Reina at 30 dishes cooked, Hayden at 100 crops, Juniper at 50 bugs, March at 50 monsters, and Adeline at 50,000 gold earned. Each was written in that character's own voice, from their existing letters. It changes no code at all, only the letters data. One caveat: delivered letters are referenced by name in your save, so removing this mod mid-playthrough makes the game log a missing-letter error rather than being perfectly clean."""
+SUMMARY = "Nine letters from villagers, delivered as your play-stats cross milestones - two of them about coops, barns and animals."
+DETAILS = """Nine new letters arrive by mail when your play crosses a milestone: Valen after your first faint, Terithia at 100 fish, Reina at 30 dishes cooked, Hayden at 100 crops, Juniper at 50 bugs, March at 50 monsters, Adeline at 50,000 gold earned, Landen once the Carpenter's Shop stocks coops and barns and you have built neither, and Hayden again when a building of yours stands empty. Each was written in that character's own voice, from their existing letters. It changes no code at all, only the letters data. One caveat: delivered letters are referenced by name in your save, so removing this mod mid-playthrough makes the game log a missing-letter error rather than being perfectly clean."""
 DOC = "mistria-notices-you.md"
 LEGACY = ["MISTRIA_NOTICES"]
 markers = Markers(SLUG, legacy=LEGACY)
@@ -85,6 +85,28 @@ Bring me the interesting ones. Not the common ones. I will know the difference, 
 
 Oh ho ho ho!"""
 
+[notices_landen_coop]
+	subject_line = "Room for a Coop"
+	npc = "landen"
+	requirements = { repaired_carpenters_shop = true, invert.or = [{ has_coop = true }, { has_barn = true }], reached_date = { season = "spring", day = 8, year = 1 } }
+	local = """[Ari],
+
+A word from a retired professional: that farm of yours has room to spare, and room is a thing you put animals in.
+
+Ryis and I keep coop and barn plans at the Carpenter's Shop. Bring the materials and a little coin and we'll have one standing on your land before you can say "Hayden's got chickens."
+
+Which, incidentally, he does."""
+
+[notices_hayden_empty_barn]
+	subject_line = "That Building of Yours"
+	npc = "hayden"
+	requirements = { or = [{ has_coop = true }, { has_barn = true }], invert.has_any_animal = true }
+	local = """[Ari],
+
+Heard you put up an animal building. Nice work. Looking a little quiet in there, though.
+
+Come by Sweetwater Farm whenever you're ready and pick out your first. I'll show you the feeding and the petting. They're not fussy, but they do like to be remembered every day."""
+
 [notices_march_combat]
 	subject_line = "Your Blade"
 	npc = "march"
@@ -119,7 +141,7 @@ TRANSLATE = {"letters": LETTERS_TOML}
 
 
 def patches(mk, opt):
-    # Pure data: seven new letter entries, gated the ordinary way. The game's
+    # Pure data: nine new letter entries, gated the ordinary way. The game's
     # requirements system already counts fish, bugs, crops, cooking and kills,
     # and has_ever_fainted is already a world fact - so no GML is needed.
     return {LETTERS: [(mk.APPEND, mk.block(LETTERS_TOML, toml=True))]}

@@ -28,6 +28,7 @@ from .mods import (
     shovel_sense,
     homeward,
     field_notes,
+    barn_labels,
 )
 
 MODS = [
@@ -50,6 +51,7 @@ MODS = [
     shovel_sense,
     homeward,
     field_notes,
+    barn_labels,
 ]
 
 def looks_like_game(path):

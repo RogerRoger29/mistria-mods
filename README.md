@@ -5,13 +5,13 @@
 <h1 align="center">Mistria Mods</h1>
 
 <p align="center">
-  Nineteen quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
+  Twenty quality-of-life mods for <b>Fields of Mistria</b>, with one installer.<br>
   A tenth skill and a sixth spell, a chest you can open from anywhere, sparkles on the museum's missing insects, dig sites that give themselves away, and more.
 </p>
 
 <p align="center">
   <img alt="Game 1.0.4" src="https://img.shields.io/badge/Fields%20of%20Mistria-1.0.4-6d4fc2">
-  <img alt="Mods" src="https://img.shields.io/badge/mods-19-4a3391">
+  <img alt="Mods" src="https://img.shields.io/badge/mods-20-4a3391">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-2f9e5c">
   <img alt="MOMI compatible" src="https://img.shields.io/badge/MOMI-compatible-7b7391">
 </p>
@@ -75,7 +75,7 @@ the version. From source, `git pull`.
 | **Magic Skill** | A tenth skill. Casting spells earns XP; a five-tier, 19-perk Magic tree on Seridia's shrine — extra mana orbs, cheaper spells, longer Dragon's Breath, a wider Growth, mana that refills on waking, and more | Seridia's shrine, like any skill |
 | **Homeward** | A sixth spell: cast it anywhere and Ari is carried to her own doorstep; the day goes on. Learned at Magic level 20, or with your first spell without Magic Skill | Spell menu, pinnable |
 | **Storage Anywhere** | A list of every chest in the world; open any of them from where you stand. Pin your favourites to the top | `B` to open, `P` to pin — rebindable |
-| **Daily Checklist** | Hold a key for today's outstanding tasks and what's coming this season | `V`, rebindable |
+| **Daily Checklist** | Hold a key for today's outstanding tasks, your animals' care, and what's coming this season | `V`, rebindable |
 | **Crop Labels** | Hold a key to see what a plant is and how long until harvest | `F`, rebindable |
 | **Uncaught Sparkles** | Insects the museum's Insect wing still lacks carry a white twinkle — readable with no colour vision at all | Accessibility toggle |
 | **Uncaught Flora** | The same twinkle on wild forage, bushes and fruit trees the Flora wing still needs | Accessibility toggle |
@@ -85,10 +85,11 @@ the version. From source, `git pull`.
 | **Vein Tools** | Water a whole crop patch, or mine a whole vein of rock, in one swing; reach scales with tool tier | Four Accessibility toggles |
 | **Instant Tools** | One-swing chop and mine, still charging the full stamina | Accessibility toggle |
 | **Big Rock Credit** | Large rocks and boulders count toward the mine ladder, weighted by size | Accessibility toggle |
+| **Barn Labels** | Hover an animal to see its name, hearts, and whether it has been fed and petted today | Accessibility toggle |
 | **Map Name Labels** | Hover a villager's head on the map to see their name | Accessibility toggle |
 | **Curious Neighbours** | Villagers react to the item you're carrying with their true gift opinion | — |
 | **Nearby Affection** | Bystanders gain a little affection when you talk to or gift someone | — |
-| **Mistria Notices You** | Seven letters from villagers that arrive based on how you actually play | — |
+| **Mistria Notices You** | Nine letters from villagers that arrive based on how you actually play, two of them pointing you at coops, barns and animals | — |
 | **Extra Perks** | Three new skill perks: Pathfinder, Curator's Eye, Well Spring | Bought with essence |
 | **Unreleased Perks** | Two finished perks the game never put in a tree: Gemini Season, Ancient Inspiration | Bought with essence |
 
@@ -149,7 +150,7 @@ everything else.
   are referenced by key, so removing it mid-playthrough makes the game log a
   missing-letter error. *Magic Skill*: a save that has earned Magic XP keeps a
   `magic` entry; test on a throwaway save before removing it from a leveled
-  playthrough. *Homeward*: a save that learned it keeps a `homeward` entry in its spell list, same advice. The other sixteen leave no trace at all.
+  playthrough. *Homeward*: a save that learned it keeps a `homeward` entry in its spell list, same advice. The other seventeen leave no trace at all.
 
 ## Layout
 
