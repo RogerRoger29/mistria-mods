@@ -1,0 +1,3 @@
+[asset_properties]
+	[asset_properties.fiddle_renames]
+		"mods/daily_checklist/labels" = ["*"]

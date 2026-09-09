@@ -1,0 +1,9 @@
+{
+    "name": "Barn Labels",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Point at one of your animals for a card with its name, its hearts, and whether it has been fed and petted today.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["local.missing"]
+}

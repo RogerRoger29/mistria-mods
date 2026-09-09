@@ -96,13 +96,34 @@ the version. From source, `git pull`.
 Every mod has a page in [`docs/`](docs/) — what it does, the design decisions,
 every option, and the engine traps found play-testing it.
 
+## MOMI editions
+
+Twelve of the mods also ship as ordinary MOMI mods, so they install the way
+every other Fields of Mistria mod does: drop the folder into `mods/`, run the
+Mods of Mistria Installer, press Install. No exe from here involved.
+
+Homeward, Shovel Sense, Mistria Notices You, Unreleased Perks, Ladder
+Progress, Barn Labels, Crop Labels, Daily Checklist, Curious Neighbours,
+Nearby Affection, Big Rock Credit and Storage Anywhere. The sources are under
+[`momi/`](momi/) and the zips are attached to each GitHub release and posted
+on the Nexus page. The behaviour is the same as the framework editions; the
+switches move from Settings into a per-mod JSON file that MOMI's runtime keeps
+under `%LOCALAPPDATA%\FieldsOfMistria\mod_data\`, which the MMAPI Mod Configs
+mod shows in game. [`momi/README.md`](momi/README.md) has the details and the
+list of what the other eight need that MOMI cannot give them.
+
+**Never install both editions of one mod.** They define the same functions and
+the game would not boot. The app and `install.py` refuse to apply a mod whose
+MOMI package is already in the archive, and say so.
+
 ## Playing nicely with MOMI
 
-These are not MOMI mods, but they live happily alongside it:
+The framework mods are not MOMI mods, but they live happily alongside it:
 
 - **Run MOMI first, then this.** MOMI rebuilds `assets.zip` from its own
   pristine backup every time it installs, which removes everything here. Just
-  re-apply afterwards — `Apply` in the app, or `install.py apply --all`.
+  re-apply afterwards — `Apply` in the app, or `install.py apply --all`. Mods
+  you have as MOMI packages are skipped automatically.
 - Mods whose anchors MOMI's MMAPI layer rewrites (Magic Skill's spell-cost
   lines, for instance) carry both forms and pick whichever your archive has, so
   they apply with or without MOMI installed.

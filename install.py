@@ -45,8 +45,10 @@ def cmd_status(args):
                                   if os.path.exists(BACKUP) else "none yet"))
     for mod in MODS:
         on = patcher.is_installed(archive, mod)
-        print("  [%s] %-20s %s" % ("x" if on else " ",
-                                   mod.SLUG.replace("_", "-"), mod.NAME))
+        momi = patcher.momi_installed(archive, mod)
+        print("  [%s] %-20s %s%s" % ("x" if on else ("M" if momi else " "),
+                                     mod.SLUG.replace("_", "-"), mod.NAME,
+                                     "  (MOMI package)" if momi else ""))
 
 
 def _selected(args):
@@ -106,14 +108,24 @@ def cmd_apply(args):
     # update reports the whole list of misses instead of aborting on the first.
     options = {mod.SLUG: _options_for(mod, args) for mod in mods}
     bad = 0
+    kept = []
     for mod in mods:
         patcher.strip_mod(archive, mod)
+        # A MOMI package of the same mod is already in the archive: the two
+        # editions cannot coexist, so the framework's copy stays out (any
+        # stale block of it was just stripped).
+        if patcher.momi_installed(archive, mod):
+            print("  - %-20s its MOMI package is installed; leaving it to MOMI"
+                  % mod.SLUG.replace("_", "-"))
+            continue
+        kept.append(mod)
         report = patcher.check_mod(archive, mod, options[mod.SLUG])
         if not all(good for _, good, _ in report):
             _report_check(mod, report)
             bad += 1
     if bad:
         sys.exit("\n%d mod(s) would not apply cleanly - assets.zip was not changed." % bad)
+    mods = kept
 
     for mod in mods:
         opt = options[mod.SLUG]

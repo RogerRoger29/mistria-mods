@@ -1,0 +1,8 @@
+# The menu listing every chest in the world. Menu ids are minted from these
+# keys, so this entry is what mints Menu.ChestPicker.
+[chest_picker]
+	canvas_kind = "minspec"
+	backplate_name = "backplate"
+	listen_for_exit = true
+	has_background = true
+	pause = "main"

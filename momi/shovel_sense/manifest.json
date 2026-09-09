@@ -1,0 +1,9 @@
+{
+    "name": "Shovel Sense",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Hold the shovel: nearby dig sites puff loose earth, and Ari notices the first one that comes close.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": []
+}

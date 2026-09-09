@@ -1,0 +1,9 @@
+{
+    "name": "Homeward",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "A sixth spell: cast it anywhere and Ari is carried to her own doorstep. The day goes on.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["spells.cast", "spells.can_cast", "game.new_day", "save.game_loaded", "game.title_entered", "local.missing"]
+}

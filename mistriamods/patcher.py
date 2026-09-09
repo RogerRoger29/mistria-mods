@@ -9,6 +9,7 @@ Fields of Mistria compiles the GML in assets.zip at startup with an embedded VM
 called `fabricator`, which is why editing that source works at all.
 """
 
+import json
 import os
 import re
 import sys
@@ -460,3 +461,62 @@ def is_installed(archive, mod):
         if mod.markers.present_in(archive.read(name), toml=toml):
             return True
     return False
+
+
+# --- MOMI packages -----------------------------------------------------------
+#
+# Twelve of the mods also ship as MOMI packages (momi/ in the repo). A package
+# and the framework edition of the same mod define the same functions and the
+# same data, and the game will not boot with both, so apply refuses a mod whose
+# package is already in the archive. MOMI derives a mod's id from the
+# manifest's author and name - lowercased, spaces to underscores, every other
+# character dropped - and its GML lands under scripts/<id with the dot as an
+# underscore>/. A package with no GML (Unreleased Perks) is recognised by the
+# data it merged, and as a last resort by MOMI's own record of its last run.
+
+MOMI_AUTHOR = "lunchbox0924"
+
+
+def momi_id(mod):
+    name = "".join(ch for ch in mod.NAME.lower().replace(" ", "_")
+                   if ch.isalnum() or ch in "_.")
+    return "%s.%s" % (MOMI_AUTHOR, name)
+
+
+def momi_manifest_ids():
+    """Ids MOMI's last run reports as applied, or an empty set."""
+    manifest = os.path.join(os.environ.get("LOCALAPPDATA", ""),
+                            "FieldsOfMistria", "mods", "manifest.json")
+    try:
+        with open(manifest, encoding="utf-8") as f:
+            return {m.get("id") for m in json.load(f).get("mods", [])}
+    except (OSError, ValueError):
+        return set()
+
+
+def _toml_signature(block):
+    """The lines that prove a mod's TOML payload is present: its table
+    headers, or failing those its perk placements."""
+    lines = [l.strip() for l in block.splitlines()]
+    headers = [l for l in lines if re.match(r"^\[[A-Za-z0-9_]+\]$", l)]
+    if headers:
+        return headers
+    return [l for l in lines if re.match(r'^perk = "[a-z0-9_]+"$', l)]
+
+
+def momi_installed(archive, mod):
+    """Is this mod's MOMI package in the archive?"""
+    prefix = "assets/gml/scripts/%s/" % momi_id(mod).replace(".", "_")
+    if any(name.startswith(prefix) for name in archive.files):
+        return True
+    for name, edits in mod.patches(mod.markers, mod.defaults()).items():
+        if not name.endswith(".toml") or name not in archive.files:
+            continue
+        text = strip_file(mod, name, archive.read(name), edits)
+        for edit in edits:
+            if edit[0] is not Markers.APPEND:
+                continue
+            signature = _toml_signature(edit[1])
+            if signature and all(line in text for line in signature):
+                return True
+    return momi_id(mod) in momi_manifest_ids()

@@ -1,0 +1,9 @@
+{
+    "name": "Daily Checklist",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Hold V for today's unwatered crops, ungreeted villagers, gifts, animal care, birthdays and festivals.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["local.missing"]
+}

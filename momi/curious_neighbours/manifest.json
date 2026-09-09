@@ -1,0 +1,9 @@
+{
+    "name": "Curious Neighbours",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Villagers you walk past react to the item you are carrying with their true gift opinion.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": []
+}

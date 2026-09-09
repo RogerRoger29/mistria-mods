@@ -1,0 +1,5 @@
+barn_hearts = "Hearts"
+barn_fed = "Fed"
+barn_unfed = "Not fed"
+barn_pet = "Petted"
+barn_unpet = "Not petted"

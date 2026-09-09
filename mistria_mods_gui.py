@@ -331,14 +331,16 @@ class App(tk.Tk):
     def refresh(self):
         try:
             states = verifier.installed_states(registry.ASSETS, MODS)
+            momi = verifier.momi_states(registry.ASSETS, MODS)
         except Exception as e:
             self.status.set("Could not read assets.zip: %s" % e)
             return
         for mod in MODS:
             on = states.get(mod.SLUG)
+            packaged = momi.get(mod.SLUG)
             self.state_labels[mod.SLUG].configure(
-                text="Installed" if on else "Not installed",
-                style="Good.TLabel" if on else "Off.TLabel")
+                text="Installed" if on else ("MOMI package" if packaged else "Not installed"),
+                style="Good.TLabel" if (on or packaged) else "Off.TLabel")
         n = sum(1 for v in states.values() if v)
         self.folder_var.set(registry.GAME_DIR)
         if not self.busy:
@@ -371,8 +373,15 @@ class App(tk.Tk):
                 self.log("Saving a clean backup -> assets.vanilla.zip (once)")
             patcher.ensure_backup(archive, registry.BACKUP, MODS)
             bad = 0
+            kept = []
             for mod in mods:
                 patcher.strip_mod(archive, mod)
+                # Its MOMI package is already in the archive: the two editions
+                # cannot coexist, so this copy stays out.
+                if patcher.momi_installed(archive, mod):
+                    self.log("  - %s: its MOMI package is installed; leaving it to MOMI" % mod.NAME)
+                    continue
+                kept.append(mod)
                 for name, ok, detail in patcher.check_mod(archive, mod):
                     if not ok:
                         self.log("  ! %s - %s: %s" % (mod.NAME, os.path.basename(name), detail))
@@ -381,12 +390,12 @@ class App(tk.Tk):
                 self.log("Nothing was changed: %d anchor problem(s). Is the game a version "
                          "this release supports?" % bad)
                 raise SystemExit("anchors did not match")
-            for mod in mods:
+            for mod in kept:
                 patcher.apply_mod(archive, mod, mod.defaults())
                 self.log("  + " + mod.NAME)
             self.log("Rebuilding assets.zip - this takes a moment ...")
             archive.save()
-            self.log("Done: %d mod(s) applied. Launch the game." % len(mods))
+            self.log("Done: %d mod(s) applied. Launch the game." % len(kept))
 
         self.run("Applying %d mod(s)" % len(mods), fn)
 

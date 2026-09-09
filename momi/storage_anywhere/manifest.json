@@ -1,0 +1,9 @@
+{
+    "name": "Storage Anywhere",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Press B for a list of every chest in the world and open any of them from where you stand; pin favourites with P.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["local.missing"]
+}

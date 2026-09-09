@@ -1,0 +1,6 @@
+chest_picker_title = "Storage"
+chest_picker_empty = "No storage found."
+chest_picker_generic = "Storage"
+chest_picker_elsewhere = "Elsewhere"
+chest_picker_pinned = "Pinned"
+chest_picker_pin_hint = "Pin / Unpin"

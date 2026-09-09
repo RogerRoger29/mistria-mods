@@ -1,0 +1,9 @@
+{
+    "name": "Big Rock Credit",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Large rocks and boulders count toward the mine ladder, weighted by their size.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["resource.node_picked"]
+}

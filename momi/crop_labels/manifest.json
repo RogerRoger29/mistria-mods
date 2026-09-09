@@ -1,0 +1,9 @@
+{
+    "name": "Crop Labels",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Hold F to see what a crop is and how many days until harvest.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": []
+}

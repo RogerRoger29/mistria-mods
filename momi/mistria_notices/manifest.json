@@ -1,0 +1,9 @@
+{
+    "name": "Mistria Notices You",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "Nine letters from villagers, delivered as your play crosses milestones: your first faint, a hundred fish, a quiet new barn, and more.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": ["local.missing"]
+}

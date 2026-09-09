@@ -1,0 +1,9 @@
+{
+    "name": "Ladder Progress",
+    "author": "lunchbox0924",
+    "version": "1.0.0",
+    "description": "A mine HUD readout of how close the floor is to revealing its ladder.",
+    "minInstallerVersion": "0.15.10",
+    "manifestVersion": 1,
+    "requires_hooks": []
+}

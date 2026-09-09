@@ -1,0 +1,8 @@
+[homeward]
+	name = "Homeward"
+	description = "Carries you home to your own doorstep from wherever you stand. The day goes on."
+	type = "Utility"
+	cost = 8
+	icon_key = "spr_ui_map_tab_icon_farm"
+	upper_icon = "spr_ui_store_category_icon_buildings"
+	ribbon = "spr_ui_journal_magic_card_ribbon_restore"

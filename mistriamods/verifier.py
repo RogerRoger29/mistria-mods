@@ -108,12 +108,33 @@ def verify_mod(archive, mod):
 
 
 def verify_all(archive_path, mods):
-    """[(mod, ok, [details]), ...] for every mod, against one archive."""
+    """[(mod, ok, [details]), ...] for every mod, against one archive.
+
+    A mod present as its MOMI package is fine and reported as such; present
+    as both the package and the framework edition is the one state the game
+    cannot boot from, and is reported as a problem."""
     with ZipView(archive_path) as archive:
-        return [(mod,) + verify_mod(archive, mod) for mod in mods]
+        out = []
+        for mod in mods:
+            packaged = patcher.momi_installed(archive, mod)
+            if packaged and patcher.is_installed(archive, mod):
+                out.append((mod, False, ["installed BOTH as a MOMI package and as "
+                                         "the framework edition - the game will not "
+                                         "boot; remove one"]))
+            elif packaged:
+                out.append((mod, True, ["installed as a MOMI package"]))
+            else:
+                out.append((mod,) + verify_mod(archive, mod))
+        return out
 
 
 def installed_states(archive_path, mods):
     """{slug: bool} - which mods are present in the archive right now."""
     with ZipView(archive_path) as archive:
         return {mod.SLUG: patcher.is_installed(archive, mod) for mod in mods}
+
+
+def momi_states(archive_path, mods):
+    """{slug: bool} - which mods are in the archive as MOMI packages."""
+    with ZipView(archive_path) as archive:
+        return {mod.SLUG: patcher.momi_installed(archive, mod) for mod in mods}
