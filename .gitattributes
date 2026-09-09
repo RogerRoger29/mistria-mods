@@ -3,3 +3,6 @@
 *.md text eol=lf
 *.ico binary
 *.png binary
+*.gml text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
