@@ -61,6 +61,9 @@ every anchor matches your copy of the game and changes nothing.
 New versions, and new mods, are posted as [releases](../../releases). To
 update, download the new `MistriaMods.exe`, replace the old one in your game
 folder, and press **Apply** once so the current mods land in your archive.
+The Nexus page's main file stays at the version it was uploaded at, since
+every new exe needs manual verification there; the releases here are always
+current, and the source zip on Nexus is kept up to date.
 The app never connects to the internet: "New versions" in its footer just
 opens the releases page in your browser. `MistriaMods.exe --version` prints
 the version. From source, `git pull`.
