@@ -37,9 +37,12 @@ python mistria-mods/install.py apply barn-labels --reach 48
 - Driven from `obj_ari`'s `step_end`, the same four-line anchor Crop Labels,
   Daily Checklist, Ladder Progress and Shovel Sense hang off; each inserts
   immediately after it, so they survive each other in any order.
-- With a mouse the target is `instance_position(mouse_x(), mouse_y(),
-  obj_player_animal)`; on a controller, `instance_nearest` from Ari, within
-  the reach option.
+- The target is `instance_nearest` from the pointer (within 20 pixels of the
+  animal's origin) with a mouse, or from Ari within the reach option on a
+  controller. The engine answers `undefined` when there is no animal, which
+  is how the game's own callers test it; this engine has no `noone`, and no
+  `instance_position` or `variable_instance_exists` either, which the first
+  draft used.
 - The card is the Crop Labels card: a nine-slice tooltip box and a text node
   on the vitals HUD's canvas, sized by `measure()`, placed in GUI space just
   above the animal's `bbox_top`. Raw world-space text would inherit whatever

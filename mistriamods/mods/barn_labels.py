@@ -88,21 +88,27 @@ function barn_labels_nodes() {
 }
 
 //
-// The animal to describe: under the pointer with a mouse; on a controller,
-// the nearest one within reach of Ari.
+// The animal to describe: the one nearest the pointer with a mouse, if the
+// pointer is on it; on a controller, the nearest one within reach of Ari.
+// instance_nearest() answers undefined when there is none, as the game's
+// own callers expect of it.
 //
 function barn_labels_target() {
     if !instance_exists(obj_ari) {
-        return noone;
+        return undefined;
     }
     if obj_ari.using_mouse {
-        return instance_position(mouse_x(), mouse_y(), obj_player_animal);
+        var under = instance_nearest(mouse_x(), mouse_y(), obj_player_animal);
+        if under != undefined && point_distance(mouse_x(), mouse_y(), under.x, under.y) <= 20 {
+            return under;
+        }
+        return undefined;
     }
     var near = instance_nearest(obj_ari.x, obj_ari.y, obj_player_animal);
-    if near != noone && point_distance(obj_ari.x, obj_ari.y, near.x, near.y) <= @REACH@ {
+    if near != undefined && point_distance(obj_ari.x, obj_ari.y, near.x, near.y) <= @REACH@ {
         return near;
     }
-    return noone;
+    return undefined;
 }
 
 function barn_labels_update() {
@@ -111,13 +117,11 @@ function barn_labels_update() {
         return;
     }
 
-    var target = noone;
+    var target = undefined;
     if SETTINGS.get("barn_labels") && !MIST.is_running() {
         target = barn_labels_target();
     }
-    if target == noone || !instance_exists(target)
-        || !variable_instance_exists(target, "me") || target.me == undefined
-    {
+    if target == undefined || !instance_exists(target) || target.me == undefined {
         nodes.card.set_alpha(0);
         nodes.text.set_alpha(0);
         return;
